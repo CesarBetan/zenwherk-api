@@ -22,12 +22,12 @@ public class UserEndpoint {
     @GET
     @Path("/user/{uuid}")
     public Response getUserByUuid(@PathParam("uuid") String uuid) {
-        Optional<User> user = userService.getUserByUuid(uuid);
+        Result<User> userResult = userService.getUserByUuid(uuid);
         Response response;
-        if(user.isPresent()){
-            response = Response.ok(user.get()).build();
+        if(userResult.getData().isPresent()){
+            response = Response.ok(userResult.getData().get()).build();
         } else {
-            response = Response.noContent().build();
+            response = Response.status(userResult.getErrorCode()).entity(userResult.getMessage()).build();
         }
         return response;
     }

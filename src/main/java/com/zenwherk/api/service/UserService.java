@@ -18,12 +18,19 @@ public class UserService {
     @Autowired
     private UserDao userDao;
 
-    public Optional<User> getUserByUuid(String uuid) {
+    public Result<User> getUserByUuid(String uuid) {
+        Result<User> result = new Result<>();
+
         Optional<User> user = userDao.getByUuid(uuid);
         if(user.isPresent()){
             user.get().setPasswordHash(null);
+        } else {
+            result.setErrorCode(404);
+            result.setMessage(new Message("El usuario no existe"));
         }
-        return user;
+
+        result.setData(user);
+        return result;
     }
 
     public Result<User> insert(User user) {
