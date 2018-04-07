@@ -40,7 +40,14 @@ public class UserEndpoint {
         if(userResult.getData().isPresent()){
             response = Response.ok(userResult.getData().get()).build();
         } else {
-            response = Response.serverError().entity(userResult.getMessage()).build();
+            switch (userResult.getErrorCode()){
+                case 400:
+                    response = Response.status(userResult.getErrorCode()).entity(userResult.getMessage()).build();
+                    break;
+                default:
+                    response = Response.serverError().entity(userResult.getMessage()).build();
+                    break;
+            }
         }
         return response;
     }

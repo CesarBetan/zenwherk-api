@@ -35,6 +35,20 @@ public class UserDao {
         return Optional.empty();
     }
 
+    public Optional<User> getByEmail(String email){
+        String sql = "SELECT * FROM user WHERE email = ?";
+        try {
+            BeanPropertyRowMapper<User> rowMapper = new BeanPropertyRowMapper<>(User.class);
+            User user = jdbcTemplate.queryForObject(sql, rowMapper, email);
+            logger.debug("Obteniendo usuario por email " +  email);
+            return Optional.of(user);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+        return Optional.empty();
+    }
+
     public Optional<User> insert(User user) {
         String newUuid = UUID.randomUUID().toString();
         String sql = "INSERT INTO user (uuid, name, last_name, email, password_hash, " +

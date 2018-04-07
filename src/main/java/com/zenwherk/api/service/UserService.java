@@ -2,9 +2,13 @@ package com.zenwherk.api.service;
 
 import com.zenwherk.api.dao.UserDao;
 import com.zenwherk.api.domain.User;
+import com.zenwherk.api.pojo.Message;
 import com.zenwherk.api.pojo.Result;
+import com.zenwherk.api.validation.UserValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
 
@@ -23,33 +27,26 @@ public class UserService {
     }
 
     public Result<User> insert(User user) {
-        // por ejemplo query para validar que el correo no exista
-        // result.setMessage("El correo ya existe");
-        Result<User> result = new Result<>();
-        if(user == null) {
-            result.setErrorCode(2);
-            result.setMessage("El cuerpo del post no puede ser nulo");
+        Result<User> result = UserValidation.validate(user);
+        if(result.getErrorCode() != null && result.getErrorCode() > 0){
             return result;
         }
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        user.setPasswordHash(passwordEncoder.encode(user.getPassword_hash()));
 
-        if(user.getEmail() == null) {
-            result.setErrorCode(1);
-            result.setMessage("El correo no puede ser nulo");
-            return result;
-        }
-
-        if(user.getPassword_hash() == null) {
-            result.setErrorCode(1);
-            result.setMessage("El correo no puede ser nulo");
-            return result;
-        }
-
+        user.setName(user.getName().trim());
+        user.setLast_name(user.getLast_name().trim());
+        user.setEmail(user.getEmail().toLowerCase().trim());
+        user.setPicture(user.getPicture().toLowerCase().trim());
         user.setStatus(1);
         user.setRole(2);
 
-        // encryptar la contraseña
-
-        // todas mis validaciones
+        Optional<User> userExistsValidation = userDao.getByEmail(user.getEmail());
+        if(userExistsValidation.isPresent()) {
+            result.setErrorCode(400);
+            result.setMessage(new Message("El usuario ya está registrado"));
+            return result;
+        }
 
         Optional<User> insertedUser = userDao.insert(user);
         result.setData(insertedUser);

@@ -7,7 +7,7 @@ import java.util.Optional;
 public class Result<T extends Entity> {
 
     private Integer errorCode;
-    private String message;
+    private Message message;
 
     private Optional<T> data;
 
@@ -23,11 +23,11 @@ public class Result<T extends Entity> {
         this.errorCode = errorCode;
     }
 
-    public String getMessage() {
+    public Message getMessage() {
         return message;
     }
 
-    public void setMessage(String message) {
+    public void setMessage(Message message) {
         this.message = message;
     }
 
