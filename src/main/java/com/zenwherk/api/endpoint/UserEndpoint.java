@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Optional;
 
 @Component
 @Path("/v1")
@@ -47,6 +46,26 @@ public class UserEndpoint {
                 default:
                     response = Response.serverError().entity(userResult.getMessage()).build();
                     break;
+            }
+        }
+        return response;
+    }
+
+    @PUT
+    @Path("/user/{uuid}")
+    public Response update(@PathParam("uuid") String uuid, User user) {
+        Result<User> userResult = userService.update(uuid, user);
+        Response response;
+        if(userResult.getData().isPresent()) {
+            response = Response.ok(userResult.getData().get()).build();
+        } else {
+            switch (userResult.getErrorCode()) {
+                case 400:
+                case 404:
+                    response = Response.status(userResult.getErrorCode()).entity(userResult.getMessage()).build();
+                    break;
+                default:
+                    response = Response.serverError().entity(userResult.getMessage()).build();
             }
         }
         return response;

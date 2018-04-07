@@ -114,4 +114,21 @@ public class User extends Entity {
     public void setUpdated_at(Date updatedAt) {
         this.updated_at = updatedAt;
     }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", uuid='" + uuid + '\'' +
+                ", name='" + name + '\'' +
+                ", last_name='" + last_name + '\'' +
+                ", email='" + email + '\'' +
+                ", password_hash='" + password_hash + '\'' +
+                ", picture='" + picture + '\'' +
+                ", role=" + role +
+                ", status=" + status +
+                ", created_at=" + created_at +
+                ", updated_at=" + updated_at +
+                '}';
+    }
 }

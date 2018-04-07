@@ -58,4 +58,35 @@ public class UserValidation {
 
         return result;
     }
+
+    public static Result<User> validatePut(User user){
+        Result<User> result = new Result<>();
+        result.setErrorCode(null);
+
+        String message = "";
+
+        if(user == null) {
+            result.setErrorCode(400);
+            message += "El cuerpo del post no puede ser nulo. ";
+        }
+
+        if(user.getName() != null && user.getName().trim().length() < 1) {
+            result.setErrorCode(400);
+            message += "El nombre no debe estar vacío ";
+        }
+
+        if(user.getLast_name() != null && user.getLast_name().trim().length() < 1) {
+            result.setErrorCode(400);
+            message += "El apellido no debe estar vacío ";
+        }
+
+        if(user.getPassword_hash() != null && user.getPassword_hash().trim().length() < 8 ) {
+            result.setErrorCode(400);
+            message += "La contraseña no es válida. ";
+        }
+
+        result.setMessage(new Message(message));
+
+        return result;
+    }
 }

@@ -26,7 +26,7 @@ public class UserDao {
         try {
             BeanPropertyRowMapper<User> rowMapper = new BeanPropertyRowMapper<>(User.class);
             User user = jdbcTemplate.queryForObject(sql, rowMapper, uuid);
-            logger.debug("Obteniendo usuario por uuid " + uuid);
+            logger.debug("Getting user by uuid " + uuid);
             return Optional.of(user);
         } catch (Exception e) {
             e.printStackTrace();
@@ -40,7 +40,7 @@ public class UserDao {
         try {
             BeanPropertyRowMapper<User> rowMapper = new BeanPropertyRowMapper<>(User.class);
             User user = jdbcTemplate.queryForObject(sql, rowMapper, email);
-            logger.debug("Obteniendo usuario por email " +  email);
+            logger.debug("Getting user by email " +  email);
             return Optional.of(user);
         } catch (Exception e) {
             e.printStackTrace();
@@ -59,8 +59,23 @@ public class UserDao {
                     user.getEmail(), user.getPassword_hash(), user.getPicture(),
                     user.getRole(), user.getStatus(), Timestamp.from(Instant.now()),
                     Timestamp.from(Instant.now()));
-            logger.debug(String.format("Insertando usuario: %s %s", user.getName(), user.getLast_name()) );
+            logger.debug(String.format("Creating user: %s %s", user.getName(), user.getLast_name()) );
             return getByUuid(newUuid);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+        return Optional.empty();
+    }
+
+    public Optional<User> update(User user) {
+        String sql = "UPDATE user SET " +
+                "name=?, last_name=?, picture=?, password_hash=?, updated_at=? WHERE uuid=?";
+        try {
+            jdbcTemplate.update(sql, user.getName(), user.getLast_name(), user.getPicture(),
+                    user.getPassword_hash(), Timestamp.from(Instant.now()), user.getUuid());
+            logger.debug(String.format("Updating user: %s", user.getUuid()));
+            return getByUuid(user.getUuid());
         } catch (Exception e) {
             e.printStackTrace();
             logger.error(e.getMessage());
