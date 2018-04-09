@@ -1,7 +1,9 @@
 package com.zenwherk.api.endpoint;
 
 import com.zenwherk.api.domain.User;
+import com.zenwherk.api.pojo.MessageResult;
 import com.zenwherk.api.pojo.Result;
+import com.zenwherk.api.service.PasswordRecoveryService;
 import com.zenwherk.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,6 +19,9 @@ public class UserEndpoint {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private PasswordRecoveryService passwordRecoveryService;
 
     @GET
     @Path("/user/{uuid}")
@@ -68,6 +73,26 @@ public class UserEndpoint {
                     response = Response.serverError().entity(userResult.getMessage()).build();
             }
         }
+        return response;
+    }
+
+    @POST
+    @Path("/user/{uuid}/recover_password")
+    public Response generatePasswordRecoveryToken(@PathParam("uuid") String uuid) {
+        MessageResult result = passwordRecoveryService.generatePasswordRecoveryToken(uuid);
+        Response response;
+        if(result.getErrorCode() != null && result.getErrorCode() > 0) {
+            switch (result.getErrorCode()) {
+                case 404:
+                    response = Response.status(result.getErrorCode()).entity(result.getMessage()).build();
+                    break;
+                default:
+                    response = Response.serverError().entity(result.getMessage()).build();
+            }
+        } else {
+            response = Response.ok(result.getMessage()).build();
+        }
+
         return response;
     }
 }

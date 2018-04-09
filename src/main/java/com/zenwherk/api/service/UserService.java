@@ -20,7 +20,7 @@ public class UserService {
     @Autowired
     private UserDao userDao;
 
-    private static final Logger logger = LoggerFactory.getLogger(UserDao.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     public Result<User> getUserByUuid(String uuid) {
         Result<User> result = new Result<>();

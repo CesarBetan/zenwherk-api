@@ -4,31 +4,12 @@ import com.zenwherk.api.domain.Entity;
 
 import java.util.Optional;
 
-public class Result<T extends Entity> {
-
-    private Integer errorCode;
-    private Message message;
+public class Result<T extends Entity> extends MessageResult {
 
     private Optional<T> data;
 
     public Result(){
         data = Optional.empty();
-    }
-
-    public Integer getErrorCode() {
-        return errorCode;
-    }
-
-    public void setErrorCode(Integer errorCode) {
-        this.errorCode = errorCode;
-    }
-
-    public Message getMessage() {
-        return message;
-    }
-
-    public void setMessage(Message message) {
-        this.message = message;
     }
 
     public Optional<T> getData() {
