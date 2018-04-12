@@ -26,7 +26,7 @@ public class PasswordRecoveryService {
 
     public MessageResult generatePasswordRecoveryToken(String uuid) {
         MessageResult result = new MessageResult();
-        Result<User> userResult = userService.getUserByUuid(uuid);
+        Result<User> userResult = userService.getUserByUuid(uuid, true);
         if(!userResult.getData().isPresent()) {
             result.setErrorCode(userResult.getErrorCode());
             result.setMessage(userResult.getMessage());

@@ -21,12 +21,12 @@ public class UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    public Result<User> getUserByUuid(String uuid) {
+    public Result<User> getUserByUuid(String uuid, boolean keepId) {
         Result<User> result = new Result<>();
 
         Optional<User> user = userDao.getByUuid(uuid);
         if(user.isPresent()){
-            user = Optional.of(cleanUserFields(user.get()));
+            user = Optional.of(cleanUserFields(user.get(), keepId));
         } else {
             result.setErrorCode(404);
             result.setMessage(new Message("El usuario no existe"));
@@ -60,7 +60,7 @@ public class UserService {
 
         Optional<User> insertedUser = userDao.insert(user);
         if(insertedUser.isPresent()) {
-            insertedUser = Optional.of(cleanUserFields(insertedUser.get()));
+            insertedUser = Optional.of(cleanUserFields(insertedUser.get(), false));
         }
         result.setData(insertedUser);
         return result;
@@ -93,14 +93,16 @@ public class UserService {
 
         Optional<User> updatedUser = userDao.update(newUser);
         if(updatedUser.isPresent()) {
-            updatedUser = Optional.of(cleanUserFields(updatedUser.get()));
+            updatedUser = Optional.of(cleanUserFields(updatedUser.get(), false));
         }
         result.setData(updatedUser);
         return result;
     }
 
-    private User cleanUserFields(User user) {
-        user.setId(null);
+    private User cleanUserFields(User user, boolean keepId) {
+        if(!keepId) {
+            user.setId(null);
+        }
         user.setPasswordHash(null);
         user.setRole(null);
         user.setStatus(null);

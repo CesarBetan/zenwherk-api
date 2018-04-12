@@ -13,8 +13,6 @@ public class UserValidation {
             Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
 
     public static Result<User> validate(User user){
-        System.out.println("Validating user: " + user.toString());
-
         Result<User> result = new Result<>();
         result.setErrorCode(null);
 
