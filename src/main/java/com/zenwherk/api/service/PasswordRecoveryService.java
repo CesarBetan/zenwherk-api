@@ -35,9 +35,9 @@ public class PasswordRecoveryService {
 
         PasswordRecoveryToken recoveryToken = new PasswordRecoveryToken();
         recoveryToken.setToken(MathUtilities.randomDNAString(128));
-        recoveryToken.setExpiration_date(Timestamp.from(Instant.now().plus(2, ChronoUnit.DAYS)));
+        recoveryToken.setExpirationDate(Timestamp.from(Instant.now().plus(2, ChronoUnit.DAYS)));
         recoveryToken.setStatus(1);
-        recoveryToken.setUser_id(userResult.getData().get().getId());
+        recoveryToken.setUserId(userResult.getData().get().getId());
 
         boolean deletedPastTokens = passwordRecoveryTokenDao.deletePasswordRecoveryTokenByUserUserId(userResult.getData().get().getId());
         Optional<PasswordRecoveryToken> insertedPasswordRecoveryToken = passwordRecoveryTokenDao.insert(recoveryToken);

@@ -13,18 +13,18 @@ public class PasswordRecoveryToken extends Entity {
     private Long id;
     private String uuid;
     private String token;
-    private int status;
+    private Integer status;
 
-    private Long user_id;
+    private Long userId;
 
     @JsonFormat(pattern = "yyyy-MM-dd@HH:mm:ss.SSSZ")
-    private Date expiration_date;
+    private Date expirationDate;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date created_at;
+    private Date createdAt;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date updated_at;
+    private Date updatedAt;
 
     @Override
     public Long getId() {
@@ -54,44 +54,44 @@ public class PasswordRecoveryToken extends Entity {
         this.token = token;
     }
 
-    public int getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(int status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 
-    public Long getUser_id() {
-        return user_id;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUser_id(Long user_id) {
-        this.user_id = user_id;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
-    public Date getExpiration_date() {
-        return expiration_date;
+    public Date getExpirationDate() {
+        return expirationDate;
     }
 
-    public void setExpiration_date(Date expiration_date) {
-        this.expiration_date = expiration_date;
+    public void setExpirationDate(Date expirationDate) {
+        this.expirationDate = expirationDate;
     }
 
-    public Date getCreated_at() {
-        return created_at;
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
-    public void setCreated_at(Date created_at) {
-        this.created_at = created_at;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
-    public Date getUpdated_at() {
-        return updated_at;
+    public Date getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setUpdated_at(Date updated_at) {
-        this.updated_at = updated_at;
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     @Override
@@ -101,10 +101,10 @@ public class PasswordRecoveryToken extends Entity {
                 ", uuid='" + uuid + '\'' +
                 ", token='" + token + '\'' +
                 ", status=" + status +
-                ", user_id=" + user_id +
-                ", expiration_date=" + expiration_date +
-                ", created_at=" + created_at +
-                ", updated_at=" + updated_at +
+                ", userId=" + userId +
+                ", expirationDate=" + expirationDate +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
                 '}';
     }
 }

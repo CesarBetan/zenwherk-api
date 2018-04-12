@@ -55,9 +55,9 @@ public class PasswordRecoveryTokenDao {
                 "VALUE (?,?,?,?,?,?,?)";
         try {
             jdbcTemplate.update(sql, newUuid, passwordRecoveryToken.getToken(),
-                    passwordRecoveryToken.getExpiration_date(), passwordRecoveryToken.getStatus(),
+                    passwordRecoveryToken.getExpirationDate(), passwordRecoveryToken.getStatus(),
                     Timestamp.from(Instant.now()), Timestamp.from(Instant.now()),
-                    passwordRecoveryToken.getUser_id());
+                    passwordRecoveryToken.getUserId());
             logger.debug("Creating password recovery token with uuid: " + newUuid);
             return getByUuid(newUuid);
         } catch (Exception e) {

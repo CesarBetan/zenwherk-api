@@ -13,32 +13,36 @@ public class User extends Entity {
     private Long id;
     private String uuid;
     private String name;
-    private String last_name;
+    private String lastName;
     private String email;
-    private String password_hash;
+    private String passwordHash;
     private String picture;
-    private int role;
-    private int status;
+    private Integer role;
+    private Integer status;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date created_at;
+    private Date createdAt;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date updated_at;
+    private Date updatedAt;
 
 
+    @Override
     public Long getId() {
         return id;
     }
 
+    @Override
     public void setId(Long id) {
         this.id = id;
     }
 
+    @Override
     public String getUuid() {
         return uuid;
     }
 
+    @Override
     public void setUuid(String uuid) {
         this.uuid = uuid;
     }
@@ -51,12 +55,12 @@ public class User extends Entity {
         this.name = name;
     }
 
-    public String getLast_name() {
-        return last_name;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void setLast_name(String last_name) {
-        this.last_name = last_name;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getEmail() {
@@ -67,12 +71,12 @@ public class User extends Entity {
         this.email = email;
     }
 
-    public String getPassword_hash() {
-        return password_hash;
+    public String getPasswordHash() {
+        return passwordHash;
     }
 
     public void setPasswordHash(String passwordHash) {
-        this.password_hash = passwordHash;
+        this.passwordHash = passwordHash;
     }
 
     public String getPicture() {
@@ -83,36 +87,36 @@ public class User extends Entity {
         this.picture = picture;
     }
 
-    public int getRole() {
+    public Integer getRole() {
         return role;
     }
 
-    public void setRole(int role) {
+    public void setRole(Integer role) {
         this.role = role;
     }
 
-    public int getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(int status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 
-    public Date getCreated_at() {
-        return created_at;
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
-    public void setCreated_at(Date createdAt) {
-        this.created_at = createdAt;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
-    public Date getUpdated_at() {
-        return updated_at;
+    public Date getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setUpdated_at(Date updatedAt) {
-        this.updated_at = updatedAt;
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     @Override
@@ -121,14 +125,14 @@ public class User extends Entity {
                 "id=" + id +
                 ", uuid='" + uuid + '\'' +
                 ", name='" + name + '\'' +
-                ", last_name='" + last_name + '\'' +
+                ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
-                ", password_hash='" + password_hash + '\'' +
+                ", passwordHash='" + passwordHash + '\'' +
                 ", picture='" + picture + '\'' +
                 ", role=" + role +
                 ", status=" + status +
-                ", created_at=" + created_at +
-                ", updated_at=" + updated_at +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
                 '}';
     }
 }

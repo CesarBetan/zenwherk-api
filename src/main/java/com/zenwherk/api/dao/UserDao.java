@@ -55,11 +55,11 @@ public class UserDao {
                 "picture, role, status, created_at, updated_at) " +
                 "VALUE (?,?,?,?,?,?,?,?,?,?)";
         try {
-            jdbcTemplate.update(sql, newUuid, user.getName(), user.getLast_name(),
-                    user.getEmail(), user.getPassword_hash(), user.getPicture(),
+            jdbcTemplate.update(sql, newUuid, user.getName(), user.getLastName(),
+                    user.getEmail(), user.getPasswordHash(), user.getPicture(),
                     user.getRole(), user.getStatus(), Timestamp.from(Instant.now()),
                     Timestamp.from(Instant.now()));
-            logger.debug(String.format("Creating user: %s %s", user.getName(), user.getLast_name()) );
+            logger.debug(String.format("Creating user: %s %s", user.getName(), user.getLastName()) );
             return getByUuid(newUuid);
         } catch (Exception e) {
             e.printStackTrace();
@@ -72,8 +72,8 @@ public class UserDao {
         String sql = "UPDATE user SET " +
                 "name=?, last_name=?, picture=?, password_hash=?, updated_at=? WHERE uuid=?";
         try {
-            jdbcTemplate.update(sql, user.getName(), user.getLast_name(), user.getPicture(),
-                    user.getPassword_hash(), Timestamp.from(Instant.now()), user.getUuid());
+            jdbcTemplate.update(sql, user.getName(), user.getLastName(), user.getPicture(),
+                    user.getPasswordHash(), Timestamp.from(Instant.now()), user.getUuid());
             logger.debug(String.format("Updating user: %s", user.getUuid()));
             return getByUuid(user.getUuid());
         } catch (Exception e) {

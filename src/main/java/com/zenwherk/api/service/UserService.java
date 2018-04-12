@@ -5,12 +5,11 @@ import com.zenwherk.api.domain.User;
 import com.zenwherk.api.pojo.Message;
 import com.zenwherk.api.pojo.Result;
 import com.zenwherk.api.validation.UserValidation;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
 
@@ -27,7 +26,7 @@ public class UserService {
 
         Optional<User> user = userDao.getByUuid(uuid);
         if(user.isPresent()){
-            user.get().setPasswordHash(null);
+            user = Optional.of(cleanUserFields(user.get()));
         } else {
             result.setErrorCode(404);
             result.setMessage(new Message("El usuario no existe"));
@@ -42,11 +41,11 @@ public class UserService {
         if(result.getErrorCode() != null && result.getErrorCode() > 0){
             return result;
         }
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        user.setPasswordHash(passwordEncoder.encode(user.getPassword_hash()));
+
+        user.setPasswordHash(DigestUtils.sha512Hex(user.getPasswordHash()));
 
         user.setName(user.getName().trim());
-        user.setLast_name(user.getLast_name().trim());
+        user.setLastName(user.getLastName().trim());
         user.setEmail(user.getEmail().toLowerCase().trim());
         user.setPicture(user.getPicture().toLowerCase().trim());
         user.setStatus(1);
@@ -61,7 +60,7 @@ public class UserService {
 
         Optional<User> insertedUser = userDao.insert(user);
         if(insertedUser.isPresent()) {
-            insertedUser.get().setPasswordHash(null);
+            insertedUser = Optional.of(cleanUserFields(insertedUser.get()));
         }
         result.setData(insertedUser);
         return result;
@@ -84,20 +83,27 @@ public class UserService {
 
         User newUser = oldUser.get();
         newUser.setName((user.getName() != null) ? user.getName() : newUser.getName());
-        newUser.setLast_name((user.getLast_name() != null) ? user.getLast_name() : newUser.getLast_name());
+        newUser.setLastName((user.getLastName() != null) ? user.getLastName() : newUser.getLastName());
         newUser.setPicture((user.getPicture() != null) ? user.getPicture() : newUser.getPicture());
 
-        if(user.getPassword_hash() != null) {
-            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-            user.setPasswordHash(passwordEncoder.encode(user.getPassword_hash()));
-            newUser.setPasswordHash(user.getPassword_hash());
+        if(user.getPasswordHash() != null) {
+            user.setPasswordHash(DigestUtils.sha512Hex(user.getPasswordHash()));
+            newUser.setPasswordHash(user.getPasswordHash());
         }
 
         Optional<User> updatedUser = userDao.update(newUser);
         if(updatedUser.isPresent()) {
-            updatedUser.get().setPasswordHash(null);
+            updatedUser = Optional.of(cleanUserFields(updatedUser.get()));
         }
         result.setData(updatedUser);
         return result;
+    }
+
+    private User cleanUserFields(User user) {
+        user.setId(null);
+        user.setPasswordHash(null);
+        user.setRole(null);
+        user.setStatus(null);
+        return user;
     }
 }
