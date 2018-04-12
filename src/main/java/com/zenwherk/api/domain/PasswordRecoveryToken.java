@@ -26,6 +26,9 @@ public class PasswordRecoveryToken extends Entity {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date updatedAt;
 
+    // Not in the domain bur used for JSON purposes
+    private String password;
+
     @Override
     public Long getId() {
         return id;
@@ -92,6 +95,14 @@ public class PasswordRecoveryToken extends Entity {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     @Override

@@ -21,6 +21,21 @@ public class UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
+    public Result<User> getUserById(Long id, boolean keepId) {
+        Result<User> result = new Result<>();
+
+        Optional<User> user = userDao.getById(id);
+        if(user.isPresent()){
+            user = Optional.of(cleanUserFields(user.get(), keepId));
+        } else {
+            result.setErrorCode(404);
+            result.setMessage(new Message("El usuario no existe"));
+        }
+
+        result.setData(user);
+        return result;
+    }
+
     public Result<User> getUserByUuid(String uuid, boolean keepId) {
         Result<User> result = new Result<>();
 

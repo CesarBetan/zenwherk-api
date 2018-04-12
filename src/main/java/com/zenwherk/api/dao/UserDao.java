@@ -21,6 +21,21 @@ public class UserDao {
 
     private static final Logger logger = LoggerFactory.getLogger(UserDao.class);
 
+    public Optional<User> getById(Long id) {
+        String sql = "SELECT * FROM user WHERE id = ?";
+        try {
+            BeanPropertyRowMapper<User> rowMapper = new BeanPropertyRowMapper<>(User.class);
+            User user = jdbcTemplate.queryForObject(sql, rowMapper, id);
+            logger.debug("Getting user by id " + id);
+            return Optional.of(user);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+
+        return Optional.empty();
+    }
+
     public Optional<User> getByUuid(String uuid) {
         String sql = "SELECT * FROM user WHERE uuid = ?";
         try {

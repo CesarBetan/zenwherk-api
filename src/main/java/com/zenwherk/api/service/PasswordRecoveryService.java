@@ -7,6 +7,7 @@ import com.zenwherk.api.pojo.Message;
 import com.zenwherk.api.pojo.MessageResult;
 import com.zenwherk.api.pojo.Result;
 import com.zenwherk.api.util.MathUtilities;
+import com.zenwherk.api.validation.PasswordRecoveryTokenValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +49,41 @@ public class PasswordRecoveryService {
         }
 
         result.setMessage(new Message("Éxito! Favor de revisar su correo electrónico"));
+
+        return result;
+    }
+
+    public MessageResult recoverPassword(PasswordRecoveryToken passwordRecoveryToken) {
+        MessageResult result = PasswordRecoveryTokenValidation.validate(passwordRecoveryToken);
+        if(result.getErrorCode() != null && result.getErrorCode() > 0) {
+            return result;
+        }
+
+        Optional<PasswordRecoveryToken> queriedPasswordRecoveryToken = passwordRecoveryTokenDao.getByToken(passwordRecoveryToken.getToken().trim());
+        if(!queriedPasswordRecoveryToken.isPresent()) {
+            result.setErrorCode(404);
+            result.setMessage(new Message("Token inválido"));
+            return result;
+        }
+
+        Result<User> userResult = userService.getUserById(queriedPasswordRecoveryToken.get().getUserId(), true);
+        if(!userResult.getData().isPresent()) {
+            result.setErrorCode(500);
+            result.setMessage(new Message("Error de servidor"));
+            return result;
+        }
+
+        User user = new User();
+        user.setPasswordHash(passwordRecoveryToken.getPassword());
+        Result<User> updatedUser = userService.update(userResult.getData().get().getUuid(), user);
+        if(!updatedUser.getData().isPresent()) {
+            result.setErrorCode(updatedUser.getErrorCode());
+            result.setMessage(updatedUser.getMessage());
+            return result;
+        }
+
+        passwordRecoveryTokenDao.deletePasswordRecoveryTokenByUserUserId(userResult.getData().get().getId());
+        result.setMessage(new Message("Su contraseña ha sido reestablecida, favor de iniciar sesión"));
 
         return result;
     }

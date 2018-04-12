@@ -1,5 +1,6 @@
 package com.zenwherk.api.endpoint;
 
+import com.zenwherk.api.domain.PasswordRecoveryToken;
 import com.zenwherk.api.domain.User;
 import com.zenwherk.api.pojo.MessageResult;
 import com.zenwherk.api.pojo.Result;
@@ -8,10 +9,7 @@ import com.zenwherk.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -53,6 +51,27 @@ public class UserEndpointPublic {
         Response response;
         if(result.getErrorCode() != null && result.getErrorCode() > 0) {
             switch (result.getErrorCode()) {
+                case 404:
+                    response = Response.status(result.getErrorCode()).entity(result.getMessage()).build();
+                    break;
+                default:
+                    response = Response.serverError().entity(result.getMessage()).build();
+            }
+        } else {
+            response = Response.ok(result.getMessage()).build();
+        }
+
+        return response;
+    }
+
+    @PUT
+    @Path("/user/recovery")
+    public Response recoverPassword(PasswordRecoveryToken passwordRecoveryToken) {
+        MessageResult result = passwordRecoveryService.recoverPassword(passwordRecoveryToken);
+        Response response;
+        if(result.getErrorCode() != null && result.getErrorCode() > 0) {
+            switch (result.getErrorCode()) {
+                case 400:
                 case 404:
                     response = Response.status(result.getErrorCode()).entity(result.getMessage()).build();
                     break;

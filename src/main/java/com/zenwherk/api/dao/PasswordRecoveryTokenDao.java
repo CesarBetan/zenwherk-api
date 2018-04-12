@@ -66,4 +66,18 @@ public class PasswordRecoveryTokenDao {
         }
         return Optional.empty();
     }
+
+    public Optional<PasswordRecoveryToken> getByToken(String token) {
+        String sql = "SELECT * FROM password_recovery_token WHERE token = ?";
+        try {
+            BeanPropertyRowMapper<PasswordRecoveryToken> rowMapper = new BeanPropertyRowMapper<>(PasswordRecoveryToken.class);
+            PasswordRecoveryToken passwordRecoveryToken = jdbcTemplate.queryForObject(sql, rowMapper, token);
+            logger.debug("Getting passwordRecoveryToken by token " + token);
+            return Optional.of(passwordRecoveryToken);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+        return Optional.empty();
+    }
 }
