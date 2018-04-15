@@ -10,8 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Repository
 public class UserDao {
@@ -61,6 +60,72 @@ public class UserDao {
             e.printStackTrace();
             logger.error(e.getMessage());
         }
+        return Optional.empty();
+    }
+
+    public Optional<User[]> getAll(){
+        String sql = "SELECT * FROM user WHERE status = 1";
+        try {
+            LinkedList<User> userList = new LinkedList<>();
+            List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
+            for(Map<String, Object> row : rows) {
+                User user = new User();
+
+                user.setId(new Long((Integer) row.get("id")));
+                user.setUuid((String) row.get("uuid"));
+                user.setName((String) row.get("name"));
+                user.setLastName((String) row.get("last_name"));
+                user.setEmail((String) row.get("email"));
+                user.setPasswordHash((String) row.get("password_hash"));
+                user.setPicture((String) row.get("picture"));
+                user.setRole((Integer) row.get("role"));
+                user.setStatus((Integer) row.get("status"));
+                user.setCreatedAt((Date) row.get("created_at"));
+                user.setUpdatedAt((Date) row.get("updated_at"));
+
+                userList.add(user);
+            }
+
+            logger.debug("Getting all features");
+            return Optional.of(userList.toArray(new User[userList.size()]));
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+
+        return Optional.empty();
+    }
+
+    public Optional<User[]> search(String query) {
+        String sql = "SELECT * FROM user WHERE status = 1 AND email LIKE ?";
+        try {
+            LinkedList<User> userList = new LinkedList<>();
+            List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, String.format("%%%s%%", query));
+            for(Map<String, Object> row : rows) {
+                User user = new User();
+
+                user.setId(new Long((Integer) row.get("id")));
+                user.setUuid((String) row.get("uuid"));
+                user.setName((String) row.get("name"));
+                user.setLastName((String) row.get("last_name"));
+                user.setEmail((String) row.get("email"));
+                user.setPasswordHash((String) row.get("password_hash"));
+                user.setPicture((String) row.get("picture"));
+                user.setRole((Integer) row.get("role"));
+                user.setStatus((Integer) row.get("status"));
+                user.setCreatedAt((Date) row.get("created_at"));
+                user.setUpdatedAt((Date) row.get("updated_at"));
+
+                userList.add(user);
+            }
+
+            logger.debug("Getting all features");
+            return Optional.of(userList.toArray(new User[userList.size()]));
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+
         return Optional.empty();
     }
 

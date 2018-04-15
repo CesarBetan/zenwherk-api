@@ -2,6 +2,7 @@ package com.zenwherk.api.service;
 
 import com.zenwherk.api.dao.UserDao;
 import com.zenwherk.api.domain.User;
+import com.zenwherk.api.pojo.ListResult;
 import com.zenwherk.api.pojo.Message;
 import com.zenwherk.api.pojo.Result;
 import com.zenwherk.api.validation.UserValidation;
@@ -20,6 +21,31 @@ public class UserService {
     private UserDao userDao;
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+
+    public ListResult<User> searchUsers(String query, boolean keepId) {
+        ListResult<User> result = new ListResult<>();
+
+        Optional<User[]> queriedUsers;
+        if(query == null || query.trim().length() < 1) {
+            queriedUsers = userDao.getAll();
+        } else {
+            queriedUsers = userDao.search(query);
+        }
+        if(queriedUsers.isPresent()) {
+            User[] features = new User[queriedUsers.get().length];
+            for(int i = 0; i < features.length; i++){
+                features[i] = cleanUserFields(queriedUsers.get()[i], keepId);
+            }
+            queriedUsers = Optional.of(features);
+        } else {
+            result.setErrorCode(500);
+            result.setMessage(new Message("Error del servidor"));
+        }
+
+        result.setData(queriedUsers);
+        return result;
+    }
+
 
     public Result<User> getUserById(Long id, boolean keepId) {
         Result<User> result = new Result<>();

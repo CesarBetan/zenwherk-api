@@ -1,6 +1,8 @@
 package com.zenwherk.api.endpoint;
 
 import com.zenwherk.api.domain.User;
+import com.zenwherk.api.pojo.ListResponse;
+import com.zenwherk.api.pojo.ListResult;
 import com.zenwherk.api.pojo.MessageResult;
 import com.zenwherk.api.pojo.Result;
 import com.zenwherk.api.service.PasswordRecoveryService;
@@ -22,6 +24,19 @@ public class UserEndpoint {
 
     @Autowired
     private PasswordRecoveryService passwordRecoveryService;
+
+    @GET
+    @Path("/user")
+    public Response searchUsers(@QueryParam("q") String query) {
+        ListResult<User> userListResult = userService.searchUsers(query, false);
+        Response response;
+        if(userListResult.getData().isPresent()) {
+            response = Response.ok(new ListResponse<>(userListResult.getData().get())).build();
+        } else {
+            response = Response.status(userListResult.getErrorCode()).entity(userListResult.getMessage()).build();
+        }
+        return response;
+    }
 
     @GET
     @Path("/user/{uuid}")
