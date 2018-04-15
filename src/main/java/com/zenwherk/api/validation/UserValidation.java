@@ -21,37 +21,37 @@ public class UserValidation {
         if(user == null) {
             result.setErrorCode(400);
             message += "El cuerpo del post no puede ser nulo. ";
-        }
-
-        if(user.getName() == null || user.getName().trim().length() < 1){
-            result.setErrorCode(400);
-            message += "El nombre no debe estar vacío. ";
-        }
-
-        if(user.getLastName() == null || user.getLastName().trim().length() < 1){
-            result.setErrorCode(400);
-            message += "El apellido no debe estar vacío. ";
-        }
-
-        if(user.getEmail() == null) {
-            result.setErrorCode(400);
-            message += "El correo no debe estar vacío. ";
         } else {
-            Matcher matcher = VALID_EMAIL_ADDRESS_REGEX .matcher(user.getEmail());
-            if(!matcher.find()) {
+            if(user.getName() == null || user.getName().trim().length() < 1){
                 result.setErrorCode(400);
-                message += "El correo no es válido. ";
+                message += "El nombre no debe estar vacío. ";
             }
-        }
 
-        if(user.getPasswordHash() == null || user.getPasswordHash().trim().length() < 8) {
-            result.setErrorCode(400);
-            message += "La contraseña no es válida. ";
-        }
+            if(user.getLastName() == null || user.getLastName().trim().length() < 1){
+                result.setErrorCode(400);
+                message += "El apellido no debe estar vacío. ";
+            }
 
-        if(user.getPicture() == null) {
-            result.setErrorCode(400);
-            message += "La imagen no debe estar nula. ";
+            if(user.getEmail() == null) {
+                result.setErrorCode(400);
+                message += "El correo no debe estar vacío. ";
+            } else {
+                Matcher matcher = VALID_EMAIL_ADDRESS_REGEX .matcher(user.getEmail());
+                if(!matcher.find()) {
+                    result.setErrorCode(400);
+                    message += "El correo no es válido. ";
+                }
+            }
+
+            if(user.getPasswordHash() == null || user.getPasswordHash().trim().length() < 8) {
+                result.setErrorCode(400);
+                message += "La contraseña no es válida. ";
+            }
+
+            if(user.getPicture() == null) {
+                result.setErrorCode(400);
+                message += "La imagen no debe estar nula. ";
+            }
         }
 
         result.setMessage(new Message(message));
@@ -68,21 +68,21 @@ public class UserValidation {
         if(user == null) {
             result.setErrorCode(400);
             message += "El cuerpo del post no puede ser nulo. ";
-        }
+        } else {
+            if(user.getName() != null && user.getName().trim().length() < 1) {
+                result.setErrorCode(400);
+                message += "El nombre no debe estar vacío ";
+            }
 
-        if(user.getName() != null && user.getName().trim().length() < 1) {
-            result.setErrorCode(400);
-            message += "El nombre no debe estar vacío ";
-        }
+            if(user.getLastName() != null && user.getLastName().trim().length() < 1) {
+                result.setErrorCode(400);
+                message += "El apellido no debe estar vacío ";
+            }
 
-        if(user.getLastName() != null && user.getLastName().trim().length() < 1) {
-            result.setErrorCode(400);
-            message += "El apellido no debe estar vacío ";
-        }
-
-        if(user.getPasswordHash() != null && user.getPasswordHash().trim().length() < 8 ) {
-            result.setErrorCode(400);
-            message += "La contraseña no es válida. ";
+            if(user.getPasswordHash() != null && user.getPasswordHash().trim().length() < 8 ) {
+                result.setErrorCode(400);
+                message += "La contraseña no es válida. ";
+            }
         }
 
         result.setMessage(new Message(message));

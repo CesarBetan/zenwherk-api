@@ -22,7 +22,7 @@ public class UserDao {
     private static final Logger logger = LoggerFactory.getLogger(UserDao.class);
 
     public Optional<User> getById(Long id) {
-        String sql = "SELECT * FROM user WHERE id = ?";
+        String sql = "SELECT * FROM user WHERE id = ? AND status = 1";
         try {
             BeanPropertyRowMapper<User> rowMapper = new BeanPropertyRowMapper<>(User.class);
             User user = jdbcTemplate.queryForObject(sql, rowMapper, id);
@@ -37,7 +37,7 @@ public class UserDao {
     }
 
     public Optional<User> getByUuid(String uuid) {
-        String sql = "SELECT * FROM user WHERE uuid = ?";
+        String sql = "SELECT * FROM user WHERE uuid = ? AND status = 1";
         try {
             BeanPropertyRowMapper<User> rowMapper = new BeanPropertyRowMapper<>(User.class);
             User user = jdbcTemplate.queryForObject(sql, rowMapper, uuid);
@@ -51,7 +51,7 @@ public class UserDao {
     }
 
     public Optional<User> getByEmail(String email){
-        String sql = "SELECT * FROM user WHERE email = ?";
+        String sql = "SELECT * FROM user WHERE email = ? AND status = 1";
         try {
             BeanPropertyRowMapper<User> rowMapper = new BeanPropertyRowMapper<>(User.class);
             User user = jdbcTemplate.queryForObject(sql, rowMapper, email);

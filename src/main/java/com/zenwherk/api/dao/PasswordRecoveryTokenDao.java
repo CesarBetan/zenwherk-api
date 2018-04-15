@@ -35,7 +35,7 @@ public class PasswordRecoveryTokenDao {
     }
 
     public Optional<PasswordRecoveryToken> getByUuid(String uuid) {
-        String sql = "SELECT * FROM password_recovery_token WHERE uuid = ?";
+        String sql = "SELECT * FROM password_recovery_token WHERE uuid = ? AND status = 1";
         try {
             BeanPropertyRowMapper<PasswordRecoveryToken> rowMapper = new BeanPropertyRowMapper<>(PasswordRecoveryToken.class);
             PasswordRecoveryToken passwordRecoveryToken = jdbcTemplate.queryForObject(sql, rowMapper, uuid);
@@ -68,7 +68,7 @@ public class PasswordRecoveryTokenDao {
     }
 
     public Optional<PasswordRecoveryToken> getByToken(String token) {
-        String sql = "SELECT * FROM password_recovery_token WHERE token = ?";
+        String sql = "SELECT * FROM password_recovery_token WHERE token = ? AND status = 1";
         try {
             BeanPropertyRowMapper<PasswordRecoveryToken> rowMapper = new BeanPropertyRowMapper<>(PasswordRecoveryToken.class);
             PasswordRecoveryToken passwordRecoveryToken = jdbcTemplate.queryForObject(sql, rowMapper, token);
