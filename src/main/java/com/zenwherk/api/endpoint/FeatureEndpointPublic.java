@@ -1,6 +1,8 @@
 package com.zenwherk.api.endpoint;
 
 import com.zenwherk.api.domain.Feature;
+import com.zenwherk.api.pojo.ListResponse;
+import com.zenwherk.api.pojo.ListResult;
 import com.zenwherk.api.pojo.Result;
 import com.zenwherk.api.service.FeatureService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,19 @@ public class FeatureEndpointPublic {
             response = Response.ok(featureResult.getData().get()).build();
         } else {
             response = Response.status(featureResult.getErrorCode()).entity(featureResult.getMessage()).build();
+        }
+        return response;
+    }
+
+    @GET
+    @Path("/feature")
+    public Response getAllFeatures() {
+        ListResult<Feature> featureListResult = featureService.getAllFeatures(false);
+        Response response;
+        if(featureListResult.getData().isPresent()) {
+            response = Response.ok(new ListResponse<>(featureListResult.getData().get())).build();
+        } else {
+            response = Response.status(featureListResult.getErrorCode()).entity(featureListResult.getMessage()).build();
         }
         return response;
     }

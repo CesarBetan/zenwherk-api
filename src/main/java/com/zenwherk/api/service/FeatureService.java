@@ -2,6 +2,7 @@ package com.zenwherk.api.service;
 
 import com.zenwherk.api.dao.FeatureDao;
 import com.zenwherk.api.domain.Feature;
+import com.zenwherk.api.pojo.ListResult;
 import com.zenwherk.api.pojo.Message;
 import com.zenwherk.api.pojo.Result;
 import com.zenwherk.api.validation.FeatureValidation;
@@ -16,6 +17,25 @@ public class FeatureService {
 
     @Autowired
     private FeatureDao featureDao;
+
+    public ListResult<Feature> getAllFeatures(boolean keepId) {
+        ListResult<Feature> result = new ListResult<>();
+
+        Optional<Feature[]> queriedFeatures = featureDao.getAll();
+        if(queriedFeatures.isPresent()) {
+            Feature[] features = new Feature[queriedFeatures.get().length];
+            for(int i = 0; i < features.length; i++){
+                features[i] = cleanFeatureFields(queriedFeatures.get()[i], keepId);
+            }
+            queriedFeatures = Optional.of(features);
+        } else {
+            result.setErrorCode(500);
+            result.setMessage(new Message("Error del servidor"));
+        }
+
+        result.setData(queriedFeatures);
+        return result;
+    }
 
     public Result<Feature> getFeatureByUuid(String uuid, boolean keepId) {
         Result<Feature> result = new Result<>();

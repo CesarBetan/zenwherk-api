@@ -10,8 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Repository
 public class FeatureDao {
@@ -46,6 +45,35 @@ public class FeatureDao {
             e.printStackTrace();
             logger.error(e.getMessage());
         }
+        return Optional.empty();
+    }
+
+    public Optional<Feature[]> getAll() {
+        String sql = "SELECT * FROM feature WHERE status = 1";
+        try {
+            LinkedList<Feature> featureList = new LinkedList<>();
+            List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
+            for(Map<String, Object> row : rows) {
+                Feature feature = new Feature();
+
+                feature.setId(new Long((Integer) row.get("id")));
+                feature.setUuid((String) row.get("uuid"));
+                feature.setName((String) row.get("name"));
+                feature.setCategory((Integer) row.get("category"));
+                feature.setStatus((Integer) row.get("status"));
+                feature.setCreatedAt((Date) row.get("created_at"));
+                feature.setUpdatedAt((Date) row.get("updated_at"));
+
+                featureList.add(feature);
+            }
+
+            logger.debug("Getting all features");
+            return Optional.of(featureList.toArray(new Feature[featureList.size()]));
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+
         return Optional.empty();
     }
 
