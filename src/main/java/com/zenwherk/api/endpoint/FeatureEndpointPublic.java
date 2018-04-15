@@ -8,10 +8,7 @@ import com.zenwherk.api.service.FeatureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -39,8 +36,8 @@ public class FeatureEndpointPublic {
 
     @GET
     @Path("/feature")
-    public Response getAllFeatures() {
-        ListResult<Feature> featureListResult = featureService.getAllFeatures(false);
+    public Response searchFeatures(@QueryParam("q") String query) {
+        ListResult<Feature> featureListResult = featureService.searchFeatures(query, false);
         Response response;
         if(featureListResult.getData().isPresent()) {
             response = Response.ok(new ListResponse<>(featureListResult.getData().get())).build();

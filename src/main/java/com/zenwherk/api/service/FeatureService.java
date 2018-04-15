@@ -18,10 +18,15 @@ public class FeatureService {
     @Autowired
     private FeatureDao featureDao;
 
-    public ListResult<Feature> getAllFeatures(boolean keepId) {
+    public ListResult<Feature> searchFeatures(String query, boolean keepId){
         ListResult<Feature> result = new ListResult<>();
 
-        Optional<Feature[]> queriedFeatures = featureDao.getAll();
+        Optional<Feature[]> queriedFeatures;
+        if(query == null || query.trim().length() < 1) {
+            queriedFeatures = featureDao.getAll();
+        } else {
+            queriedFeatures = featureDao.search(query);
+        }
         if(queriedFeatures.isPresent()) {
             Feature[] features = new Feature[queriedFeatures.get().length];
             for(int i = 0; i < features.length; i++){
