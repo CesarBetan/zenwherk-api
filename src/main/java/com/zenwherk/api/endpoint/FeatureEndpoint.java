@@ -1,6 +1,7 @@
 package com.zenwherk.api.endpoint;
 
 import com.zenwherk.api.domain.Feature;
+import com.zenwherk.api.pojo.MessageResult;
 import com.zenwherk.api.pojo.Result;
 import com.zenwherk.api.service.FeatureService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,28 @@ public class FeatureEndpoint {
                     break;
             }
         }
+        return response;
+    }
+
+    @DELETE
+    @Path("/feature/{uuid}")
+    public Response delete(@PathParam("uuid") String uuid) {
+        MessageResult result = featureService.delete(uuid);
+
+        Response response;
+        if(result.getErrorCode() != null && result.getErrorCode() > 0) {
+            switch (result.getErrorCode()) {
+                case 400:
+                case 500:
+                    response = Response.status(result.getErrorCode()).entity(result.getMessage()).build();
+                    break;
+                default:
+                    response = Response.serverError().entity(result.getMessage()).build();
+            }
+        } else {
+            response = Response.ok(result.getMessage()).build();
+        }
+
         return response;
     }
 }

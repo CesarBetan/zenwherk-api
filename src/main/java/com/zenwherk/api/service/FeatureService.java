@@ -4,6 +4,7 @@ import com.zenwherk.api.dao.FeatureDao;
 import com.zenwherk.api.domain.Feature;
 import com.zenwherk.api.pojo.ListResult;
 import com.zenwherk.api.pojo.Message;
+import com.zenwherk.api.pojo.MessageResult;
 import com.zenwherk.api.pojo.Result;
 import com.zenwherk.api.validation.FeatureValidation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,6 +81,20 @@ public class FeatureService {
         }
 
         result.setData(insertedFeature);
+        return result;
+    }
+
+    public MessageResult delete(String uuid) {
+        MessageResult result = new MessageResult();
+        boolean deletedCorrectly = featureDao.delete(uuid);
+
+        if(deletedCorrectly) {
+            result.setMessage(new Message("Feature borrado correctamente"));
+        } else {
+            result.setErrorCode(500);
+            result.setMessage(new Message("Error de servidor"));
+        }
+
         return result;
     }
 

@@ -122,4 +122,18 @@ public class FeatureDao {
         }
         return Optional.empty();
     }
+
+    public boolean delete(String uuid) {
+        String sql = "UPDATE feature SET " +
+                "status=0 WHERE uuid=?";
+        try {
+            jdbcTemplate.update(sql, uuid);
+            logger.debug(String.format("Deleting feature: %s", uuid));
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+        return false;
+    }
 }
