@@ -86,7 +86,7 @@ public class UserDao {
                 userList.add(user);
             }
 
-            logger.debug("Getting all features");
+            logger.debug("Getting all users");
             return Optional.of(userList.toArray(new User[userList.size()]));
         } catch (Exception e) {
             e.printStackTrace();
@@ -119,7 +119,7 @@ public class UserDao {
                 userList.add(user);
             }
 
-            logger.debug("Getting all features");
+            logger.debug("Searching for users");
             return Optional.of(userList.toArray(new User[userList.size()]));
         } catch (Exception e) {
             e.printStackTrace();
