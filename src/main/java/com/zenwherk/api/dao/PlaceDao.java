@@ -22,6 +22,21 @@ public class PlaceDao {
 
     private static final Logger logger = LoggerFactory.getLogger(PlaceDao.class);
 
+    public Optional<Place> getById(Long id) {
+        String sql = "SELECT * FROM place WHERE id = ? AND status > 0";
+        try {
+            BeanPropertyRowMapper<Place> rowMapper = new BeanPropertyRowMapper<>(Place.class);
+            Place place = jdbcTemplate.queryForObject(sql, rowMapper, id);
+            logger.debug("Getting place by id " + id);
+            return Optional.of(place);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+        return Optional.empty();
+    }
+
+
     public Optional<Place> getByUuid(String uuid) {
         String sql = "SELECT * FROM place WHERE uuid = ? AND status > 0";
         try {

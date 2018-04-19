@@ -24,7 +24,7 @@ public class PlaceEndpointPublic {
     @GET
     @Path("/place/{uuid}")
     public Response getPlaceByUuid(@PathParam("uuid") String uuid) {
-        Result<Place> placeResult = placeService.getPlaceByUuid(uuid, false);
+        Result<Place> placeResult = placeService.getPlaceByUuid(uuid, false, false);
         Response response;
         if(placeResult.getData().isPresent()) {
             response = Response.ok(placeResult.getData().get()).build();

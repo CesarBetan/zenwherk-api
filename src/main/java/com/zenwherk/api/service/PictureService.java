@@ -67,7 +67,7 @@ public class PictureService {
         if(picture.getPlace().getId() != null) {
             picture.setPlaceId(picture.getPlace().getId());
         } else {
-            Result<Place> placeResult = placeService.getPlaceByUuid(picture.getPlace().getUuid(), true);
+            Result<Place> placeResult = placeService.getPlaceByUuid(picture.getPlace().getUuid(), true, true);
             if(!placeResult.getData().isPresent()) {
                 result.setErrorCode(404);
                 result.setMessage(new Message("El lugar no es válido"));

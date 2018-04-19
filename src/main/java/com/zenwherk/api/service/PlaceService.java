@@ -24,13 +24,33 @@ public class PlaceService {
 
     private static final Logger logger = LoggerFactory.getLogger(PlaceService.class);
 
-    public Result<Place> getPlaceByUuid(String uuid, boolean keepId) {
+    public Result<Place> getPlaceById(Long id, boolean keepId, boolean keepStatus) {
+        Result<Place> result = new Result<>();
+
+        Optional<Place> place = placeDao.getById(id);
+        if(place.isPresent()){
+            Long userId = place.get().getUploadedBy();
+            place = Optional.of(cleanPlaceFields(place.get(), keepId, keepStatus));
+
+            Result<User> uploadedBy = userService.getUserById(userId, false, false);
+            if(uploadedBy.getData().isPresent() && place.isPresent()) {
+                place.get().setUser(uploadedBy.getData().get());
+            }
+        } else {
+            result.setErrorCode(404);
+            result.setMessage(new Message("El lugar no existe"));
+        }
+        result.setData(place);
+        return result;
+    }
+
+    public Result<Place> getPlaceByUuid(String uuid, boolean keepId, boolean keepStatus) {
         Result<Place> result = new Result<>();
 
         Optional<Place> place = placeDao.getByUuid(uuid);
         if(place.isPresent()){
             Long userId = place.get().getUploadedBy();
-            place = Optional.of(cleanPlaceFields(place.get(), keepId));
+            place = Optional.of(cleanPlaceFields(place.get(), keepId, keepStatus));
 
             Result<User> uploadedBy = userService.getUserById(userId, false, false);
             if(uploadedBy.getData().isPresent() && place.isPresent()) {
@@ -76,18 +96,20 @@ public class PlaceService {
 
         Optional<Place> insertedPlace = placeDao.insert(place);
         if(insertedPlace.isPresent()) {
-            insertedPlace = Optional.of(cleanPlaceFields(insertedPlace.get(), false));
+            insertedPlace = Optional.of(cleanPlaceFields(insertedPlace.get(), false, false));
         }
 
         result.setData(insertedPlace);
         return result;
     }
 
-    private Place cleanPlaceFields(Place place, boolean keepId) {
+    private Place cleanPlaceFields(Place place, boolean keepId, boolean keepStatus) {
         if(!keepId) {
             place.setId(null);
         }
-        place.setStatus(null);
+        if(!keepStatus) {
+            place.setStatus(null);
+        }
         place.setUploadedBy(null);
         place.setUser(null);
         return place;
