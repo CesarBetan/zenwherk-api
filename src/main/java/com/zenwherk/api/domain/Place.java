@@ -16,12 +16,10 @@ public class Place extends Entity {
     private String address;
     private String description;
     private String phone;
-    private String mainPicture;
-    private String category;
+    private Integer category;
     private String website;
     private Double latitude;
     private Double longitude;
-    private Integer approvedStatus;
     private Integer status;
 
     private Long uploadedBy;
@@ -88,19 +86,11 @@ public class Place extends Entity {
         this.phone = phone;
     }
 
-    public String getMainPicture() {
-        return mainPicture;
-    }
-
-    public void setMainPicture(String mainPicture) {
-        this.mainPicture = mainPicture;
-    }
-
-    public String getCategory() {
+    public Integer getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(Integer category) {
         this.category = category;
     }
 
@@ -126,14 +116,6 @@ public class Place extends Entity {
 
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
-    }
-
-    public Integer getApprovedStatus() {
-        return approvedStatus;
-    }
-
-    public void setApprovedStatus(Integer approvedStatus) {
-        this.approvedStatus = approvedStatus;
     }
 
     public Integer getStatus() {
@@ -185,16 +167,15 @@ public class Place extends Entity {
                 ", address='" + address + '\'' +
                 ", description='" + description + '\'' +
                 ", phone='" + phone + '\'' +
-                ", mainPicture='" + mainPicture + '\'' +
                 ", category='" + category + '\'' +
                 ", website='" + website + '\'' +
                 ", latitude=" + latitude +
                 ", longitude=" + longitude +
-                ", approvedStatus=" + approvedStatus +
                 ", status=" + status +
                 ", uploadedBy=" + uploadedBy +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
+                ", user=" + user +
                 '}';
     }
 }

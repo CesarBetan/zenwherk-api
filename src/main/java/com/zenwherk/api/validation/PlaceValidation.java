@@ -47,14 +47,9 @@ public class PlaceValidation {
                 }
             }
 
-            if(place.getMainPicture() == null) {
+            if(place.getCategory() == null || place.getCategory() < 1) {
                 result.setErrorCode(400);
-                message += "Imagen principal inválida. ";
-            }
-
-            if(place.getCategory() == null || place.getCategory().trim().length() < 1) {
-                result.setErrorCode(400);
-                message += "La categoría no debe estar vacía. ";
+                message += "La categoría no es válida. ";
             }
 
             if(place.getWebsite() == null) {

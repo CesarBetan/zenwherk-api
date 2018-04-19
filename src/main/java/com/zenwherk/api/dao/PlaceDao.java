@@ -23,7 +23,7 @@ public class PlaceDao {
     private static final Logger logger = LoggerFactory.getLogger(PlaceDao.class);
 
     public Optional<Place> getByUuid(String uuid) {
-        String sql = "SELECT * FROM place WHERE uuid = ? AND status = 1";
+        String sql = "SELECT * FROM place WHERE uuid = ? AND status > 0";
         try {
             BeanPropertyRowMapper<Place> rowMapper = new BeanPropertyRowMapper<>(Place.class);
             Place place = jdbcTemplate.queryForObject(sql, rowMapper, uuid);
@@ -38,15 +38,15 @@ public class PlaceDao {
 
     public Optional<Place> insert(Place place) {
         String newUuid = UUID.randomUUID().toString();
-        String sql = "INSERT INTO place (uuid, name, address, description, phone, main_picture, " +
-                "category, website, latitude, longitude, approved_status, status, created_at, " +
+        String sql = "INSERT INTO place (uuid, name, address, description, phone, " +
+                "category, website, latitude, longitude, status, created_at, " +
                 "updated_at, uploaded_by) " +
-                "VALUE (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                "VALUE (?,?,?,?,?,?,?,?,?,?,?,?,?)";
         try {
             jdbcTemplate.update(sql, newUuid, place.getName(), place.getAddress(), place.getDescription(),
-                    place.getPhone(), place.getMainPicture(), place.getCategory(), place.getWebsite(),
-                    place.getLatitude(), place.getLongitude(), place.getApprovedStatus(),
-                    place.getStatus(), Timestamp.from(Instant.now()), Timestamp.from(Instant.now()),
+                    place.getPhone(), place.getCategory(), place.getWebsite(),
+                    place.getLatitude(), place.getLongitude(), place.getStatus(), Timestamp.from(Instant.now()),
+                    Timestamp.from(Instant.now()),
                     place.getUploadedBy());
             logger.debug(String.format("Creating place: %s", place.getName()));
             return getByUuid(newUuid);

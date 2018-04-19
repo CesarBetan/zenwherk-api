@@ -27,7 +27,7 @@ public class PasswordRecoveryService {
 
     public MessageResult generatePasswordRecoveryToken(String uuid) {
         MessageResult result = new MessageResult();
-        Result<User> userResult = userService.getUserByUuid(uuid, true);
+        Result<User> userResult = userService.getUserByUuid(uuid, true, false);
         if(!userResult.getData().isPresent()) {
             result.setErrorCode(userResult.getErrorCode());
             result.setMessage(userResult.getMessage());
@@ -66,7 +66,7 @@ public class PasswordRecoveryService {
             return result;
         }
 
-        Result<User> userResult = userService.getUserById(queriedPasswordRecoveryToken.get().getUserId(), true);
+        Result<User> userResult = userService.getUserById(queriedPasswordRecoveryToken.get().getUserId(), true, false);
         if(!userResult.getData().isPresent()) {
             result.setErrorCode(500);
             result.setMessage(new Message("Error de servidor"));

@@ -22,7 +22,7 @@ public class UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    public ListResult<User> searchUsers(String query, boolean keepId) {
+    public ListResult<User> searchUsers(String query, boolean keepId, boolean keepRole) {
         ListResult<User> result = new ListResult<>();
 
         Optional<User[]> queriedUsers;
@@ -34,7 +34,7 @@ public class UserService {
         if(queriedUsers.isPresent()) {
             User[] features = new User[queriedUsers.get().length];
             for(int i = 0; i < features.length; i++){
-                features[i] = cleanUserFields(queriedUsers.get()[i], keepId);
+                features[i] = cleanUserFields(queriedUsers.get()[i], keepId, keepRole);
             }
             queriedUsers = Optional.of(features);
         } else {
@@ -47,12 +47,12 @@ public class UserService {
     }
 
 
-    public Result<User> getUserById(Long id, boolean keepId) {
+    public Result<User> getUserById(Long id, boolean keepId, boolean keepRole) {
         Result<User> result = new Result<>();
 
         Optional<User> user = userDao.getById(id);
         if(user.isPresent()){
-            user = Optional.of(cleanUserFields(user.get(), keepId));
+            user = Optional.of(cleanUserFields(user.get(), keepId, keepRole));
         } else {
             result.setErrorCode(404);
             result.setMessage(new Message("El usuario no existe"));
@@ -62,12 +62,12 @@ public class UserService {
         return result;
     }
 
-    public Result<User> getUserByUuid(String uuid, boolean keepId) {
+    public Result<User> getUserByUuid(String uuid, boolean keepId, boolean keepRole) {
         Result<User> result = new Result<>();
 
         Optional<User> user = userDao.getByUuid(uuid);
         if(user.isPresent()){
-            user = Optional.of(cleanUserFields(user.get(), keepId));
+            user = Optional.of(cleanUserFields(user.get(), keepId, keepRole));
         } else {
             result.setErrorCode(404);
             result.setMessage(new Message("El usuario no existe"));
@@ -101,7 +101,7 @@ public class UserService {
 
         Optional<User> insertedUser = userDao.insert(user);
         if(insertedUser.isPresent()) {
-            insertedUser = Optional.of(cleanUserFields(insertedUser.get(), false));
+            insertedUser = Optional.of(cleanUserFields(insertedUser.get(), false, false));
         }
         result.setData(insertedUser);
         return result;
@@ -134,18 +134,20 @@ public class UserService {
 
         Optional<User> updatedUser = userDao.update(newUser);
         if(updatedUser.isPresent()) {
-            updatedUser = Optional.of(cleanUserFields(updatedUser.get(), false));
+            updatedUser = Optional.of(cleanUserFields(updatedUser.get(), false, false));
         }
         result.setData(updatedUser);
         return result;
     }
 
-    private User cleanUserFields(User user, boolean keepId) {
+    private User cleanUserFields(User user, boolean keepId, boolean keepRole) {
         if(!keepId) {
             user.setId(null);
         }
+        if(!keepRole) {
+            user.setRole(null);
+        }
         user.setPasswordHash(null);
-        user.setRole(null);
         user.setStatus(null);
         return user;
     }

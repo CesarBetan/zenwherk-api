@@ -29,7 +29,13 @@ public class PlaceService {
 
         Optional<Place> place = placeDao.getByUuid(uuid);
         if(place.isPresent()){
+            Long userId = place.get().getUploadedBy();
             place = Optional.of(cleanPlaceFields(place.get(), keepId));
+
+            Result<User> uploadedBy = userService.getUserById(userId, false, false);
+            if(uploadedBy.getData().isPresent() && place.isPresent()) {
+                place.get().setUser(uploadedBy.getData().get());
+            }
         } else {
             result.setErrorCode(404);
             result.setMessage(new Message("El lugar no existe"));
@@ -48,13 +54,9 @@ public class PlaceService {
         place.setAddress(place.getAddress().trim());
         place.setDescription(place.getDescription().trim());
         place.setPhone(place.getPhone().trim());
-        place.setMainPicture(place.getMainPicture().trim());
-        place.setCategory(place.getCategory().trim());
         place.setWebsite(place.getWebsite().trim());
-        place.setApprovedStatus(1);
-        place.setStatus(1);
 
-        Result<User> uploadedByResult = userService.getUserByUuid(place.getUser().getUuid(), true);
+        Result<User> uploadedByResult = userService.getUserByUuid(place.getUser().getUuid(), true, true);
         if(!uploadedByResult.getData().isPresent()) {
             result.setErrorCode(404);
             result.setMessage(new Message("El usuario no es válido"));
@@ -62,6 +64,15 @@ public class PlaceService {
         }
 
         place.setUploadedBy(uploadedByResult.getData().get().getId());
+
+        // If the user is an admin, the place is approved, if not it goes to an to approve status
+        // Status 0: Deleted
+        // Status 1: Approved
+        // Status 2: To be approved
+        // Status 3: To be approved - Delete
+        // Role 1: Admin
+        // Role 2: User
+        place.setStatus(uploadedByResult.getData().get().getRole());
 
         Optional<Place> insertedPlace = placeDao.insert(place);
         if(insertedPlace.isPresent()) {
@@ -76,7 +87,6 @@ public class PlaceService {
         if(!keepId) {
             place.setId(null);
         }
-        place.setApprovedStatus(null);
         place.setStatus(null);
         place.setUploadedBy(null);
         place.setUser(null);

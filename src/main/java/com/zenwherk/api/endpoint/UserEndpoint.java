@@ -28,7 +28,7 @@ public class UserEndpoint {
     @GET
     @Path("/user")
     public Response searchUsers(@QueryParam("q") String query) {
-        ListResult<User> userListResult = userService.searchUsers(query, false);
+        ListResult<User> userListResult = userService.searchUsers(query, false, false);
         Response response;
         if(userListResult.getData().isPresent()) {
             response = Response.ok(new ListResponse<>(userListResult.getData().get())).build();
@@ -41,7 +41,7 @@ public class UserEndpoint {
     @GET
     @Path("/user/{uuid}")
     public Response getUserByUuid(@PathParam("uuid") String uuid) {
-        Result<User> userResult = userService.getUserByUuid(uuid, false);
+        Result<User> userResult = userService.getUserByUuid(uuid, false, false);
         Response response;
         if(userResult.getData().isPresent()){
             response = Response.ok(userResult.getData().get()).build();

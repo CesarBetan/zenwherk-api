@@ -55,7 +55,7 @@ public class PictureService {
         if(picture.getUser().getId() != null) {
             picture.setUploadedBy(picture.getUser().getId());
         } else {
-            Result<User> uploadedByResult = userService.getUserByUuid(picture.getUser().getUuid(), true);
+            Result<User> uploadedByResult = userService.getUserByUuid(picture.getUser().getUuid(), true, false);
             if(!uploadedByResult.getData().isPresent()) {
                 result.setErrorCode(404);
                 result.setMessage(new Message("El usuario no es válido"));
