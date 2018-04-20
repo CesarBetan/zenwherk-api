@@ -68,7 +68,7 @@ public class PlaceFeatureService {
             }
         } else {
             result.setErrorCode(404);
-            result.setMessage(new Message("El lugar no existe"));
+            result.setMessage(new Message("El feature no existe"));
         }
         result.setData(placeFeature);
         return result;
@@ -108,10 +108,11 @@ public class PlaceFeatureService {
         // Status 1: Approved
         // Status 2: To be approved
         // Status 3: To be approved - Delete
-        if(placeResult.getData().get().getStatus() > 1) {
+        if(placeResult.getData().get().getStatus() == 2) {
             placeFeature.setStatus(1);
         } else {
-            // The place to which this feature belongs to is already approved.
+            // The place to which this feature belongs to is already approved or
+            // to be deleted and that means that it is approved
             // If the user is an admin, the feature is immediately approved, if not,
             // it should go through a change log process
             // Role 1: Admin
@@ -125,6 +126,75 @@ public class PlaceFeatureService {
         }
 
         result.setData(insertedPlaceFeature);
+        return result;
+    }
+
+    public Result<PlaceFeature> deletePlaceFeature(String uuid, User user) {
+        Result<PlaceFeature> result = new Result<>();
+        // The user is the user deleting the feature, the uuid is the feature's uuid
+        boolean userFound = true;
+        if(user == null || user.getUuid() == null || user.getUuid().trim().length() < 1) {
+            userFound = false;
+        } else {
+            Result<User> userResult = userService.getUserByUuid(user.getUuid(), true, true);
+            if(userResult.getData().isPresent()) {
+                user = userResult.getData().get();
+            } else {
+                userFound = false;
+            }
+        }
+        if(!userFound) {
+            result.setErrorCode(404);
+            result.setMessage(new Message("Se debe especificar el usuario que desea eliminar el feature"));
+            return result;
+        }
+
+        Optional<PlaceFeature> placeFeature = placeFeatureDao.getByUuid(uuid);
+        if(!placeFeature.isPresent()) {
+            result.setErrorCode(404);
+            result.setMessage(new Message("El feature no existe"));
+            return result;
+        }
+
+        Result<Place> placeResult = placeService.getPlaceById(placeFeature.get().getPlaceId(), true, true);
+        if(!placeResult.getData().isPresent()) {
+            result.setErrorCode(500);
+            result.setMessage(new Message("Error de servidor"));
+            return result;
+        }
+
+        // All the data to work was found
+        // If the place is not approved, then delete the feature
+        // If the place is approved and the user is an admin: delete
+        // If the place is approved and the user is not an admin: set status to 3
+        // Status 0: Deleted
+        // Status 1: Approved
+        // Status 2: To be approved
+        // Status 3: To be approved - Delete
+        if(placeResult.getData().get().getStatus() == 2) {
+            // The place is not approved
+            placeFeature.get().setStatus(0);
+        } else {
+            // The place is approved
+            if(user.getRole() == 1) {
+                // The user is an admin
+                placeFeature.get().setStatus(0);
+            } else {
+                // The user is not an admin
+                placeFeature.get().setStatus(3);
+            }
+        }
+        placeFeature.get().setUploadedBy(user.getId());
+
+        Optional<PlaceFeature> updatedPlaceFeature = placeFeatureDao.update(placeFeature.get());
+        if(updatedPlaceFeature.isPresent()) {
+            updatedPlaceFeature = Optional.of(cleanPlaceFeatureFields(updatedPlaceFeature.get(), false));
+        } else {
+            // The admin deleted it so it was not longer found, return the old one
+            updatedPlaceFeature = Optional.of(cleanPlaceFeatureFields(placeFeature.get(), false));
+        }
+
+        result.setData(updatedPlaceFeature);
         return result;
     }
 

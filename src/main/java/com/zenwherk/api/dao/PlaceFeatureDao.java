@@ -36,7 +36,7 @@ public class PlaceFeatureDao {
     }
 
     public Optional<PlaceFeature[]> getApprovedFeaturesByPlaceId(Long placeId) {
-        String sql = "SELECT * FROM place_feature WHERE status=1 AND place_id=?";
+        String sql = "SELECT * FROM place_feature WHERE status IN (1,3)  AND place_id=?";
         try {
             LinkedList<PlaceFeature> placeFeaturesList = new LinkedList<>();
             List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, placeId);
@@ -76,6 +76,24 @@ public class PlaceFeatureDao {
                     placeFeature.getUploadedBy(), placeFeature.getPlaceId());
             logger.debug(String.format("Creating place feature: %s", placeFeature.getFeatureDescription()));
             return getByUuid(newUuid);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+        return Optional.empty();
+    }
+
+    public Optional<PlaceFeature> update(PlaceFeature placeFeature) {
+        String sql = "UPDATE place_feature SET " +
+                "feature_description=?, feature_enum=?, status=?, updated_at=?, uploaded_by=? " +
+                "WHERE uuid=?";
+        try {
+            jdbcTemplate.update(sql, placeFeature.getFeatureDescription(),
+                    placeFeature.getFeatureEnum(), placeFeature.getStatus(),
+                    Timestamp.from(Instant.now()), placeFeature.getUploadedBy(),
+                    placeFeature.getUuid());
+            logger.debug(String.format("Updating place feature: %s", placeFeature.getUuid()));
+            return getByUuid(placeFeature.getUuid());
         } catch (Exception e) {
             e.printStackTrace();
             logger.error(e.getMessage());
