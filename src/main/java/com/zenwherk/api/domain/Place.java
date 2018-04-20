@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.util.Arrays;
 import java.util.Date;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -32,7 +33,7 @@ public class Place extends Entity {
 
     // Other attributes used for relations, not database attributes
     private User user;
-
+    private PlaceFeature[] features;
 
     @Override
     public Long getId() {
@@ -158,6 +159,14 @@ public class Place extends Entity {
         this.user = user;
     }
 
+    public PlaceFeature[] getFeatures() {
+        return features;
+    }
+
+    public void setFeatures(PlaceFeature[] features) {
+        this.features = features;
+    }
+
     @Override
     public String toString() {
         return "Place{" +
@@ -167,7 +176,7 @@ public class Place extends Entity {
                 ", address='" + address + '\'' +
                 ", description='" + description + '\'' +
                 ", phone='" + phone + '\'' +
-                ", category='" + category + '\'' +
+                ", category=" + category +
                 ", website='" + website + '\'' +
                 ", latitude=" + latitude +
                 ", longitude=" + longitude +
@@ -176,6 +185,7 @@ public class Place extends Entity {
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 ", user=" + user +
+                ", features=" + Arrays.toString(features) +
                 '}';
     }
 }

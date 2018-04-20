@@ -2,7 +2,9 @@ package com.zenwherk.api.service;
 
 import com.zenwherk.api.dao.PlaceDao;
 import com.zenwherk.api.domain.Place;
+import com.zenwherk.api.domain.PlaceFeature;
 import com.zenwherk.api.domain.User;
+import com.zenwherk.api.pojo.ListResult;
 import com.zenwherk.api.pojo.Message;
 import com.zenwherk.api.pojo.Result;
 import com.zenwherk.api.validation.PlaceValidation;
@@ -21,6 +23,9 @@ public class PlaceService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private PlaceFeatureService placeFeatureService;
 
     private static final Logger logger = LoggerFactory.getLogger(PlaceService.class);
 
@@ -50,12 +55,23 @@ public class PlaceService {
         Optional<Place> place = placeDao.getByUuid(uuid);
         if(place.isPresent()){
             Long userId = place.get().getUploadedBy();
-            place = Optional.of(cleanPlaceFields(place.get(), keepId, keepStatus));
+            place = Optional.of(cleanPlaceFields(place.get(), true, keepStatus));
 
-            Result<User> uploadedBy = userService.getUserById(userId, false, false);
-            if(uploadedBy.getData().isPresent() && place.isPresent()) {
-                place.get().setUser(uploadedBy.getData().get());
+            if(place.isPresent()) {
+                // Get the user that uploaded the place
+                Result<User> uploadedBy = userService.getUserById(userId, false, false);
+                if(uploadedBy.getData().isPresent()) {
+                    place.get().setUser(uploadedBy.getData().get());
+                }
+
+                // Get the features of this place
+                place.get().setFeatures(new PlaceFeature[0]);
+                ListResult<PlaceFeature> placeFeatures = placeFeatureService.getApprovedFeaturesByPlaceId(place.get().getId(), false);
+                if(placeFeatures.getData().isPresent()) {
+                    place.get().setFeatures(placeFeatures.getData().get());
+                }
             }
+
         } else {
             result.setErrorCode(404);
             result.setMessage(new Message("El lugar no existe"));

@@ -32,11 +32,11 @@ public class UserService {
             queriedUsers = userDao.search(query);
         }
         if(queriedUsers.isPresent()) {
-            User[] features = new User[queriedUsers.get().length];
-            for(int i = 0; i < features.length; i++){
-                features[i] = cleanUserFields(queriedUsers.get()[i], keepId, keepRole);
+            User[] users = new User[queriedUsers.get().length];
+            for(int i = 0; i < users.length; i++){
+                users[i] = cleanUserFields(queriedUsers.get()[i], keepId, keepRole);
             }
-            queriedUsers = Optional.of(features);
+            queriedUsers = Optional.of(users);
         } else {
             result.setErrorCode(500);
             result.setMessage(new Message("Error del servidor"));

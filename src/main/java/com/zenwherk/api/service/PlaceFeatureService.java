@@ -4,6 +4,7 @@ import com.zenwherk.api.dao.PlaceFeatureDao;
 import com.zenwherk.api.domain.Place;
 import com.zenwherk.api.domain.PlaceFeature;
 import com.zenwherk.api.domain.User;
+import com.zenwherk.api.pojo.ListResult;
 import com.zenwherk.api.pojo.Message;
 import com.zenwherk.api.pojo.Result;
 import com.zenwherk.api.validation.PlaceFeatureValidation;
@@ -27,6 +28,25 @@ public class PlaceFeatureService {
     private PlaceService placeService;
 
     private static final Logger logger = LoggerFactory.getLogger(PlaceFeatureService.class);
+
+
+    public ListResult<PlaceFeature> getApprovedFeaturesByPlaceId(Long placeId, boolean keepId) {
+        ListResult<PlaceFeature> result = new ListResult<>();
+        Optional<PlaceFeature[]> queriedPlaceFeatures = placeFeatureDao.getApprovedFeaturesByPlaceId(placeId);
+        if(queriedPlaceFeatures.isPresent()) {
+            PlaceFeature[] features = new PlaceFeature[queriedPlaceFeatures.get().length];
+            for(int i = 0; i < features.length; i++){
+                features[i] = cleanPlaceFeatureFields(queriedPlaceFeatures.get()[i], keepId);
+            }
+            queriedPlaceFeatures = Optional.of(features);
+        } else {
+            result.setErrorCode(500);
+            result.setMessage(new Message("Error del servidor"));
+        }
+
+        result.setData(queriedPlaceFeatures);
+        return result;
+    }
 
     public Result<PlaceFeature> getPlaceFeatureByUuid(String uuid, boolean keepId) {
         Result<PlaceFeature> result = new Result<>();
@@ -75,6 +95,7 @@ public class PlaceFeatureService {
         if(!placeResult.getData().isPresent()) {
             result.setErrorCode(404);
             result.setMessage(new Message("El lugar de este feature no es válido"));
+            return result;
         }
 
         // Set the foreign keys

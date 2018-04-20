@@ -11,8 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Repository
 public class PlaceFeatureDao {
@@ -29,6 +28,35 @@ public class PlaceFeatureDao {
             PlaceFeature placeFeature = jdbcTemplate.queryForObject(sql, rowMapper, uuid);
             logger.debug("Getting place feature by uuid " + uuid);
             return Optional.of(placeFeature);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+        return Optional.empty();
+    }
+
+    public Optional<PlaceFeature[]> getApprovedFeaturesByPlaceId(Long placeId) {
+        String sql = "SELECT * FROM place_feature WHERE status=1 AND place_id=?";
+        try {
+            LinkedList<PlaceFeature> placeFeaturesList = new LinkedList<>();
+            List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, placeId);
+            for(Map<String, Object> row : rows) {
+                PlaceFeature placeFeature = new PlaceFeature();
+
+                placeFeature.setId(new Long((Integer) row.get("id")));
+                placeFeature.setUuid((String) row.get("uuid"));
+                placeFeature.setFeatureDescription((String) row.get("feature_description"));
+                placeFeature.setFeatureEnum((Integer) row.get("feature_enum"));
+                placeFeature.setStatus((Integer) row.get("status"));
+                placeFeature.setCreatedAt((Date) row.get("created_at"));
+                placeFeature.setUpdatedAt((Date) row.get("updated_at"));
+                placeFeature.setUploadedBy(new Long((Integer) row.get("uploaded_by")));
+                placeFeature.setPlaceId(new Long((Integer) row.get("place_id")));
+
+                placeFeaturesList.add(placeFeature);
+            }
+            logger.debug("Obtaining approved features");
+            return Optional.of(placeFeaturesList.toArray(new PlaceFeature[placeFeaturesList.size()]));
         } catch (Exception e) {
             e.printStackTrace();
             logger.error(e.getMessage());
