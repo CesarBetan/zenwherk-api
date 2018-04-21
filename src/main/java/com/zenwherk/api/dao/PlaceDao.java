@@ -71,4 +71,25 @@ public class PlaceDao {
         }
         return Optional.empty();
     }
+
+    public Optional<Place> update(Place place) {
+        String sql = "UPDATE place SET " +
+                "name=?, address=?, description=?, phone=?, category=?, " +
+                "website=?, latitude=?, longitude=?, status=?, " +
+                "updated_at=? WHERE uuid=?";
+
+        try {
+            jdbcTemplate.update(sql, place.getName(), place.getAddress(),
+                    place.getDescription(), place.getPhone(), place.getCategory(),
+                    place.getWebsite(), place.getLatitude(), place.getLongitude(),
+                    place.getStatus(), Timestamp.from(Instant.now()),
+                    place.getUuid());
+            logger.debug(String.format("Updating place: %s", place.getUuid()));
+            return getByUuid(place.getUuid());
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+        return Optional.empty();
+    }
 }

@@ -7,9 +7,7 @@ import com.zenwherk.api.service.PlaceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -27,6 +25,23 @@ public class PlaceEndpoint {
         Result<Place> placeResult = placeService.insert(place);
         Response response;
         if(placeResult.getData().isPresent()){
+            response = Response.ok(placeResult.getData().get()).build();
+        } else {
+            if(placeResult.getErrorCode() == null || placeResult.getErrorCode() < 1) {
+                response = Response.serverError().entity(new Message("Error de servidor")).build();
+            }  else {
+                response = Response.status(placeResult.getErrorCode()).entity(placeResult.getMessage()).build();
+            }
+        }
+        return response;
+    }
+
+    @DELETE
+    @Path("/place/{uuid}")
+    public Response delete(@PathParam("uuid") String uuid) {
+        Result<Place> placeResult = placeService.delete(uuid);
+        Response response;
+        if (placeResult.getData().isPresent()) {
             response = Response.ok(placeResult.getData().get()).build();
         } else {
             if(placeResult.getErrorCode() == null || placeResult.getErrorCode() < 1) {

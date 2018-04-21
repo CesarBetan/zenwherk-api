@@ -130,6 +130,24 @@ public class PlaceService {
         return result;
     }
 
+    public Result<Place> delete(String uuid) {
+        Result<Place> result = new Result<>();
+
+        Optional<Place> place = placeDao.getByUuid(uuid);
+        if(!place.isPresent()) {
+            result.setErrorCode(404);
+            result.setMessage(new Message("El lugar no existe"));
+            return result;
+        }
+
+        place.get().setStatus(0);
+
+        placeDao.update(place.get());
+
+        result.setData(Optional.of(cleanPlaceFields(place.get(), false, false)));
+        return result;
+    }
+
     private Place cleanPlaceFields(Place place, boolean keepId, boolean keepStatus) {
         if(!keepId) {
             place.setId(null);
