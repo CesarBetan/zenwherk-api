@@ -34,6 +34,7 @@ public class Place extends Entity {
     // Other attributes used for relations, not database attributes
     private User user;
     private PlaceFeature[] features;
+    private PlaceSchedule[] schedules;
 
     @Override
     public Long getId() {
@@ -167,6 +168,14 @@ public class Place extends Entity {
         this.features = features;
     }
 
+    public PlaceSchedule[] getSchedules() {
+        return schedules;
+    }
+
+    public void setSchedules(PlaceSchedule[] schedules) {
+        this.schedules = schedules;
+    }
+
     @Override
     public String toString() {
         return "Place{" +
@@ -186,6 +195,7 @@ public class Place extends Entity {
                 ", updatedAt=" + updatedAt +
                 ", user=" + user +
                 ", features=" + Arrays.toString(features) +
+                ", schedules=" + Arrays.toString(schedules) +
                 '}';
     }
 }
