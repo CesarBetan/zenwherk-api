@@ -41,4 +41,29 @@ public class PlaceFeatureValidation {
         result.setMessage(new Message(message));
         return result;
     }
+
+    public static Result<PlaceFeature> validateUpdate(PlaceFeature placeFeature) {
+        Result<PlaceFeature> result = new Result<>();
+        result.setErrorCode(null);
+
+        String message = "";
+
+        if(placeFeature == null) {
+            result.setErrorCode(400);
+            message += "El cuerpo del post no puede ser nulo. ";
+        } else {
+            if(placeFeature.getFeatureDescription() != null && placeFeature.getFeatureDescription().trim().length() < 1) {
+                result.setErrorCode(400);
+                message += "La descripción del feature no debe estar vacía. ";
+            }
+
+            if(placeFeature.getFeatureEnum() != null && placeFeature.getFeatureEnum() < 1) {
+                result.setErrorCode(400);
+                message += "El tipo de feature no es válido. ";
+            }
+        }
+
+        result.setMessage(new Message(message));
+        return result;
+    }
 }

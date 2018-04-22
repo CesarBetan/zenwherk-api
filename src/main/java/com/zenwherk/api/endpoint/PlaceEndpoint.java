@@ -38,7 +38,7 @@ public class PlaceEndpoint {
 
     @PUT
     @Path("/place/{uuid}")
-    public Response updated(@PathParam("uuid") String uuid, Place place) {
+    public Response update(@PathParam("uuid") String uuid, Place place) {
         Result<Place> placeResult = placeService.update(uuid, place);
         Response response;
         if (placeResult.getData().isPresent()) {

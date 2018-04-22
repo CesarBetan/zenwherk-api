@@ -129,6 +129,34 @@ public class PlaceFeatureService {
         return result;
     }
 
+    public Result<PlaceFeature> update(String uuid, PlaceFeature placeFeature) {
+        Result<PlaceFeature> result;
+
+        Optional<PlaceFeature> oldPlaceFeature = placeFeatureDao.getByUuid(uuid);
+        if(!oldPlaceFeature.isPresent()) {
+            result = new Result<>();
+            result.setErrorCode(404);
+            result.setMessage(new Message("El feature no existe"));
+            return result;
+        }
+
+        result = PlaceFeatureValidation.validateUpdate(placeFeature);
+        if(result.getErrorCode() != null && result.getErrorCode() > 0) {
+            return result;
+        }
+
+        PlaceFeature newPlaceFeature = oldPlaceFeature.get();
+        newPlaceFeature.setFeatureDescription((placeFeature.getFeatureDescription() != null) ? placeFeature.getFeatureDescription() : newPlaceFeature.getFeatureDescription());
+        newPlaceFeature.setFeatureEnum((placeFeature.getFeatureEnum() != null) ? placeFeature.getFeatureEnum() : newPlaceFeature.getFeatureEnum());
+
+        Optional<PlaceFeature> updatedPlaceFeature = placeFeatureDao.update(newPlaceFeature);
+        if(updatedPlaceFeature.isPresent()) {
+            updatedPlaceFeature = Optional.of(cleanPlaceFeatureFields(updatedPlaceFeature.get(), false));
+        }
+        result.setData(updatedPlaceFeature);
+        return result;
+    }
+
     public Result<PlaceFeature> deletePlaceFeature(String uuid, User user) {
         Result<PlaceFeature> result = new Result<>();
         // The user is the user deleting the feature, the uuid is the feature's uuid
