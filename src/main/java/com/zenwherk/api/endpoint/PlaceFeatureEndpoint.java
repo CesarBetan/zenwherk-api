@@ -54,6 +54,40 @@ public class PlaceFeatureEndpoint {
         return response;
     }
 
+    @PUT
+    @Path("/place_feature/{uuid}/approval")
+    public Response approve(@PathParam("uuid") String uuid) {
+        Result<PlaceFeature> placeFeatureResult = placeFeatureService.approveOrReject(uuid, true);
+        Response response;
+        if (placeFeatureResult.getData().isPresent()) {
+            response = Response.ok(placeFeatureResult.getData().get()).build();
+        } else {
+            if(placeFeatureResult.getErrorCode() == null || placeFeatureResult.getErrorCode() < 1) {
+                response = Response.serverError().entity(new Message("Error de servidor")).build();
+            }  else {
+                response = Response.status(placeFeatureResult.getErrorCode()).entity(placeFeatureResult.getMessage()).build();
+            }
+        }
+        return response;
+    }
+
+    @PUT
+    @Path("/place_feature/{uuid}/rejection")
+    public Response reject(@PathParam("uuid") String uuid) {
+        Result<PlaceFeature> placeFeatureResult = placeFeatureService.approveOrReject(uuid, false);
+        Response response;
+        if (placeFeatureResult.getData().isPresent()) {
+            response = Response.ok(placeFeatureResult.getData().get()).build();
+        } else {
+            if(placeFeatureResult.getErrorCode() == null || placeFeatureResult.getErrorCode() < 1) {
+                response = Response.serverError().entity(new Message("Error de servidor")).build();
+            }  else {
+                response = Response.status(placeFeatureResult.getErrorCode()).entity(placeFeatureResult.getMessage()).build();
+            }
+        }
+        return response;
+    }
+
     @DELETE
     @Path("/place_feature/{uuid}")
     public Response delete(@PathParam("uuid") String uuid, User user) {

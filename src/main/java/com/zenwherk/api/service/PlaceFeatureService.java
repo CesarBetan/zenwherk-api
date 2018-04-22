@@ -226,6 +226,40 @@ public class PlaceFeatureService {
         return result;
     }
 
+    public Result<PlaceFeature> approveOrReject(String uuid, boolean approve) {
+        Result<PlaceFeature> result = new Result<>();
+
+        Optional<PlaceFeature> placeFeature = placeFeatureDao.getByUuid(uuid);
+        if(!placeFeature.isPresent()) {
+            result.setErrorCode(404);
+            result.setMessage(new Message("El feature no existe"));
+            return result;
+        }
+
+        if(approve) {
+            if(placeFeature.get().getStatus() == 2) {
+                placeFeature.get().setStatus(1);
+            } else if (placeFeature.get().getStatus() == 3){
+                placeFeature.get().setStatus(0);
+            }
+        } else {
+            if(placeFeature.get().getStatus() == 2) {
+                placeFeature.get().setStatus(0);
+            } else if (placeFeature.get().getStatus() == 3) {
+                placeFeature.get().setStatus(1);
+            }
+        }
+
+        Optional<PlaceFeature> updatedPlaceFeature = placeFeatureDao.update(placeFeature.get());
+        if(updatedPlaceFeature.isPresent()) {
+            updatedPlaceFeature = Optional.of(cleanPlaceFeatureFields(updatedPlaceFeature.get(), false));
+        } else {
+            updatedPlaceFeature = Optional.of(cleanPlaceFeatureFields(placeFeature.get(), false));
+        }
+        result.setData(updatedPlaceFeature);
+        return result;
+    }
+
     private PlaceFeature cleanPlaceFeatureFields(PlaceFeature placeFeature, boolean keepId) {
         if(!keepId) {
             placeFeature.setId(null);
