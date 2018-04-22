@@ -5,6 +5,7 @@ import com.zenwherk.api.domain.Place;
 import com.zenwherk.api.domain.PlaceChange;
 import com.zenwherk.api.domain.User;
 import com.zenwherk.api.pojo.Message;
+import com.zenwherk.api.pojo.MessageResult;
 import com.zenwherk.api.pojo.Result;
 import com.zenwherk.api.validation.PlaceChangeValidation;
 import org.slf4j.Logger;
@@ -65,6 +66,77 @@ public class PlaceChangeService {
         }
 
         result.setData(insertedPlaceChange);
+        return result;
+    }
+
+    public MessageResult approveReject(String uuid, boolean approve) {
+        MessageResult result = new MessageResult();
+
+        Optional<PlaceChange> placeChange = placeChangeDao.getByUuid(uuid);
+        if(!placeChange.isPresent()) {
+            result.setErrorCode(404);
+            result.setMessage(new Message("El cambio no es válido"));
+            return result;
+        }
+
+        if(approve) {
+            Result<Place> placeResult = placeService.getPlaceById(placeChange.get().getPlaceId(), true, true);
+            if(!placeResult.getData().isPresent()) {
+                result.setErrorCode(404);
+                result.setMessage(new Message("El lugar no es válido"));
+                return result;
+            }
+
+            Place newPlace = placeResult.getData().get();
+
+            // Data was found, now update the corresponding field
+            switch (placeChange.get().getColumnToChange()) {
+                case "name":
+                    newPlace.setName(placeChange.get().getNewValue());
+                    break;
+                case "address":
+                    newPlace.setAddress(placeChange.get().getNewValue());
+                    break;
+                case "description":
+                    newPlace.setDescription(placeChange.get().getNewValue());
+                    break;
+                case "website":
+                    newPlace.setWebsite(placeChange.get().getNewValue());
+                    break;
+                case "phone":
+                    newPlace.setPhone(placeChange.get().getNewValue());
+                    break;
+                case "category":
+                    newPlace.setCategory(Integer.parseInt(placeChange.get().getNewValue()));
+                    break;
+                case "latitude":
+                    newPlace.setLatitude(Double.parseDouble(placeChange.get().getNewValue()));
+                    break;
+                case "longitude":
+                    newPlace.setLongitude(Double.parseDouble(placeChange.get().getNewValue()));
+                    break;
+            }
+
+            Result<Place> updatedPlace = placeService.update(newPlace.getUuid(), newPlace);
+            if(!updatedPlace.getData().isPresent()) {
+                result.setErrorCode(500);
+                result.setMessage(new Message("Error de servidor"));
+                return result;
+            }
+        }
+
+        boolean deletedCorrectly = placeChangeDao.deleteByUuid(placeChange.get().getUuid());
+        if(!deletedCorrectly) {
+            result.setErrorCode(500);
+            result.setMessage(new Message("Error de servidor"));
+            return result;
+        }
+
+        if(approve) {
+            result.setMessage(new Message("Cambio aplicado correctamente"));
+        } else {
+            result.setMessage(new Message("Cambio descartado correctamente"));
+        }
         return result;
     }
 
