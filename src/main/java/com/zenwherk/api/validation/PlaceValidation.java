@@ -76,4 +76,48 @@ public class PlaceValidation {
         result.setMessage(new Message(message));
         return result;
     }
+
+    public static Result<Place> validateUpdate(Place place) {
+        Result<Place> result = new Result<>();
+        result.setErrorCode(null);
+
+        String message = "";
+
+        if(place == null) {
+            result.setErrorCode(400);
+            message += "El cuerpo del post no puede ser nulo. ";
+        } else {
+            if(place.getName() != null && place.getName().trim().length() < 1) {
+                result.setErrorCode(400);
+                message += "El nombre no debe estar vacío. ";
+            }
+
+            if(place.getAddress() != null && place.getAddress().trim().length() < 1) {
+                result.setErrorCode(400);
+                message += "La dirección no debe estar vacía. ";
+            }
+
+            if(place.getDescription() != null && place.getDescription().trim().length() < 1) {
+                result.setErrorCode(400);
+                message += "La descripción no debe estar vacía. ";
+            }
+
+            if(place.getPhone() != null) {
+                Matcher matcher = VALID_PHONE_REGEX .matcher(place.getPhone());
+                if(!matcher.find()) {
+                    result.setErrorCode(400);
+                    message += "El teléfono no es válido. ";
+                }
+            }
+
+            if(place.getCategory() != null && place.getCategory() < 1) {
+                result.setErrorCode(400);
+                message += "La categoría no es válida. ";
+            }
+        }
+
+        result.setMessage(new Message(message));
+
+        return result;
+    }
 }

@@ -36,6 +36,23 @@ public class PlaceEndpoint {
         return response;
     }
 
+    @PUT
+    @Path("/place/{uuid}")
+    public Response updated(@PathParam("uuid") String uuid, Place place) {
+        Result<Place> placeResult = placeService.update(uuid, place);
+        Response response;
+        if (placeResult.getData().isPresent()) {
+            response = Response.ok(placeResult.getData().get()).build();
+        } else {
+            if(placeResult.getErrorCode() == null || placeResult.getErrorCode() < 1) {
+                response = Response.serverError().entity(new Message("Error de servidor")).build();
+            }  else {
+                response = Response.status(placeResult.getErrorCode()).entity(placeResult.getMessage()).build();
+            }
+        }
+        return response;
+    }
+
     @DELETE
     @Path("/place/{uuid}")
     public Response delete(@PathParam("uuid") String uuid) {

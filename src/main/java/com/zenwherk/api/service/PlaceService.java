@@ -130,6 +130,40 @@ public class PlaceService {
         return result;
     }
 
+    public Result<Place> update(String uuid, Place place) {
+        Result<Place> result;
+
+        Optional<Place> oldPlace = placeDao.getByUuid(uuid);
+        if(!oldPlace.isPresent()) {
+            result = new Result<>();
+            result.setErrorCode(404);
+            result.setMessage(new Message("El lugar no existe"));
+            return result;
+        }
+
+        result = PlaceValidation.validateUpdate(place);
+        if(result.getErrorCode() != null && result.getErrorCode() > 0) {
+            return result;
+        }
+
+        Place newPlace = oldPlace.get();
+        newPlace.setName((place.getName() != null) ? place.getName() : newPlace.getName());
+        newPlace.setAddress((place.getAddress() != null) ? place.getAddress() : newPlace.getAddress());
+        newPlace.setDescription((place.getDescription() != null) ? place.getDescription() : newPlace.getDescription());
+        newPlace.setPhone((place.getPhone() != null) ? place.getPhone() : newPlace.getPhone());
+        newPlace.setCategory((place.getCategory() != null) ? place.getCategory() : newPlace.getCategory());
+        newPlace.setWebsite((place.getWebsite() != null) ? place.getWebsite() : newPlace.getWebsite());
+        newPlace.setLatitude((place.getLatitude() != null) ? place.getLatitude() : newPlace.getLatitude());
+        newPlace.setLongitude((place.getLongitude() != null) ? place.getLongitude() : newPlace.getLongitude());
+
+        Optional<Place> updatedPlace = placeDao.update(newPlace);
+        if(updatedPlace.isPresent()) {
+            updatedPlace = Optional.of(cleanPlaceFields(updatedPlace.get(), false, false));
+        }
+        result.setData(updatedPlace);
+        return result;
+    }
+
     public Result<Place> delete(String uuid) {
         Result<Place> result = new Result<>();
 
