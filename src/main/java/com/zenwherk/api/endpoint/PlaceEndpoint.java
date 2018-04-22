@@ -53,6 +53,40 @@ public class PlaceEndpoint {
         return response;
     }
 
+    @PUT
+    @Path("/place/{uuid}/approval")
+    public Response approve(@PathParam("uuid") String uuid) {
+        Result<Place> placeResult = placeService.approveOrReject(uuid, true);
+        Response response;
+        if (placeResult.getData().isPresent()) {
+            response = Response.ok(placeResult.getData().get()).build();
+        } else {
+            if(placeResult.getErrorCode() == null || placeResult.getErrorCode() < 1) {
+                response = Response.serverError().entity(new Message("Error de servidor")).build();
+            }  else {
+                response = Response.status(placeResult.getErrorCode()).entity(placeResult.getMessage()).build();
+            }
+        }
+        return response;
+    }
+
+    @PUT
+    @Path("/place/{uuid}/rejection")
+    public Response reject(@PathParam("uuid") String uuid) {
+        Result<Place> placeResult = placeService.approveOrReject(uuid, false);
+        Response response;
+        if (placeResult.getData().isPresent()) {
+            response = Response.ok(placeResult.getData().get()).build();
+        } else {
+            if(placeResult.getErrorCode() == null || placeResult.getErrorCode() < 1) {
+                response = Response.serverError().entity(new Message("Error de servidor")).build();
+            }  else {
+                response = Response.status(placeResult.getErrorCode()).entity(placeResult.getMessage()).build();
+            }
+        }
+        return response;
+    }
+
     @DELETE
     @Path("/place/{uuid}")
     public Response delete(@PathParam("uuid") String uuid) {

@@ -164,6 +164,35 @@ public class PlaceService {
         return result;
     }
 
+    public Result<Place> approveOrReject(String uuid, boolean approve) {
+        Result<Place> result = new Result<>();
+
+        Optional<Place> place = placeDao.getByUuid(uuid);
+        if(!place.isPresent()) {
+            result.setErrorCode(404);
+            result.setMessage(new Message("El lugar no existe"));
+            return result;
+        }
+
+        if(place.get().getStatus() == 2) {
+            if(approve) {
+                place.get().setStatus(1);
+            } else {
+                place.get().setStatus(0);
+            }
+        }
+
+        Optional<Place> updatedPlace = placeDao.update(place.get());
+        if(updatedPlace.isPresent()) {
+            updatedPlace = Optional.of(cleanPlaceFields(updatedPlace.get(), false, false));
+        } else {
+            updatedPlace = Optional.of(cleanPlaceFields(place.get(), false, false));
+        }
+        result.setData(updatedPlace);
+
+        return result;
+    }
+
     public Result<Place> delete(String uuid) {
         Result<Place> result = new Result<>();
 
