@@ -1,7 +1,5 @@
 package com.zenwherk.api.dao;
 
-
-import com.zenwherk.api.domain.PlaceFeature;
 import com.zenwherk.api.domain.PlaceFeatureChange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
