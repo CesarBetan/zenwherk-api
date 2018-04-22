@@ -5,6 +5,7 @@ import com.zenwherk.api.domain.PlaceFeature;
 import com.zenwherk.api.domain.PlaceFeatureChange;
 import com.zenwherk.api.domain.User;
 import com.zenwherk.api.pojo.Message;
+import com.zenwherk.api.pojo.MessageResult;
 import com.zenwherk.api.pojo.Result;
 import com.zenwherk.api.validation.PlaceFeatureChangeValidation;
 import org.slf4j.Logger;
@@ -63,6 +64,52 @@ public class PlaceFeatureChangeService {
         }
 
         result.setData(insertedPlaceFeatureChange);
+        return result;
+    }
+
+    public MessageResult approveReject(String uuid, boolean approve) {
+        MessageResult result = new MessageResult();
+
+        Optional<PlaceFeatureChange> placeFeatureChange = placeFeatureChangeDao.getByUuid(uuid);
+        if(!placeFeatureChange.isPresent()) {
+            result.setErrorCode(404);
+            result.setMessage(new Message("El cambio no es válido"));
+            return result;
+        }
+
+        if(approve) {
+            Result<PlaceFeature> placeFeatureResult = placeFeatureService.getPlaceFeatureById(placeFeatureChange.get().getPlaceFeatureId(), true);
+            if(!placeFeatureResult.getData().isPresent()) {
+                result.setErrorCode(404);
+                result.setMessage(new Message("El feature no es válido"));
+                return result;
+            }
+
+            PlaceFeature newPlaceFeature = placeFeatureResult.getData().get();
+
+            // Data was found, now update the corresponding field
+            newPlaceFeature.setFeatureDescription(placeFeatureChange.get().getNewFeatureDesc());
+
+            Result<PlaceFeature> updatedPlaceFeature = placeFeatureService.update(newPlaceFeature.getUuid(), newPlaceFeature);
+            if(!updatedPlaceFeature.getData().isPresent()) {
+                result.setErrorCode(500);
+                result.setMessage(new Message("Error de servidor"));
+                return result;
+            }
+        }
+
+        boolean deletedCorrectly = placeFeatureChangeDao.deleteByUuid(placeFeatureChange.get().getUuid());
+        if(!deletedCorrectly) {
+            result.setErrorCode(500);
+            result.setMessage(new Message("Error de servidor"));
+            return result;
+        }
+
+        if(approve) {
+            result.setMessage(new Message("Cambio aplicado correctamente"));
+        } else {
+            result.setMessage(new Message("Cambio descartado correctamente"));
+        }
         return result;
     }
 

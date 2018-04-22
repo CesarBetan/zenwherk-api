@@ -21,6 +21,20 @@ public class PlaceFeatureDao {
 
     private static final Logger logger = LoggerFactory.getLogger(PlaceFeatureDao.class);
 
+    public Optional<PlaceFeature> getById(Long id) {
+        String sql = "SELECT * FROM place_feature WHERE id = ? AND status > 0";
+        try {
+            BeanPropertyRowMapper<PlaceFeature> rowMapper = new BeanPropertyRowMapper<>(PlaceFeature.class);
+            PlaceFeature placeFeature = jdbcTemplate.queryForObject(sql, rowMapper, id);
+            logger.debug("Getting place feature by id " + id);
+            return Optional.of(placeFeature);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+        return Optional.empty();
+    }
+
     public Optional<PlaceFeature> getByUuid(String uuid) {
         String sql = "SELECT * FROM place_feature WHERE uuid = ? AND status > 0";
         try {

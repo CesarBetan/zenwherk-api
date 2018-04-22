@@ -29,6 +29,20 @@ public class PlaceScheduleService {
 
     private static final Logger logger = LoggerFactory.getLogger(PlaceScheduleService.class);
 
+    public Result<PlaceSchedule> getPlaceScheduleById(Long id, boolean keepId) {
+        Result<PlaceSchedule> result = new Result<>();
+
+        Optional<PlaceSchedule> placeSchedule = placeScheduleDao.getById(id);
+        if(placeSchedule.isPresent()){
+            placeSchedule = Optional.of(cleanPlaceScheduleFields(placeSchedule.get(), keepId));
+        } else {
+            result.setErrorCode(404);
+            result.setMessage(new Message("El horario no existe"));
+        }
+        result.setData(placeSchedule);
+        return result;
+    }
+
     public ListResult<PlaceSchedule> getApprovedSchedulesByPlaceId(Long placeId, boolean keepId) {
         ListResult<PlaceSchedule> result = new ListResult<>();
         Optional<PlaceSchedule[]> queriedPlaceSchedules = placeScheduleDao.getApprovedPlaceSchedulesByPlaceId(placeId);

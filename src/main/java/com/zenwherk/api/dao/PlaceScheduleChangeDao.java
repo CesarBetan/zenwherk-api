@@ -53,4 +53,18 @@ public class PlaceScheduleChangeDao {
         }
         return Optional.empty();
     }
+
+    public boolean deleteByUuid(String uuid) {
+        String sql = "UPDATE place_schedule_change SET status=0, updated_at=? " +
+                "WHERE uuid=?";
+        try {
+            jdbcTemplate.update(sql,Timestamp.from(Instant.now()), uuid);
+            logger.debug(String.format("Deleting place schedule change with uuid: %s", uuid));
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+        return false;
+    }
 }

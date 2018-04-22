@@ -20,6 +20,20 @@ public class PlaceScheduleDao {
 
     private static final Logger logger = LoggerFactory.getLogger(PlaceScheduleDao.class);
 
+    public Optional<PlaceSchedule> getById(Long id) {
+        String sql = "SELECT * FROM place_schedule WHERE id = ? AND status > 0";
+        try {
+            BeanPropertyRowMapper<PlaceSchedule> rowMapper = new BeanPropertyRowMapper<>(PlaceSchedule.class);
+            PlaceSchedule placeSchedule = jdbcTemplate.queryForObject(sql, rowMapper, id);
+            logger.debug("Getting place schedule by id " + id);
+            return Optional.of(placeSchedule);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+        return Optional.empty();
+    }
+
     public Optional<PlaceSchedule> getByUuid(String uuid) {
         String sql = "SELECT * FROM place_schedule WHERE uuid = ? AND status > 0";
         try {
