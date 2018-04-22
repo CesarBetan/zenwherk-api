@@ -169,6 +169,54 @@ public class PlaceScheduleService {
         return result;
     }
 
+    public Result<PlaceSchedule> approveOrReject(String uuid, boolean approve) {
+        Result<PlaceSchedule> result = new Result<>();
+
+        Optional<PlaceSchedule> placeSchedule = placeScheduleDao.getByUuid(uuid);
+        if(!placeSchedule.isPresent()) {
+            result.setErrorCode(404);
+            result.setMessage(new Message("El horario no existe"));
+            return result;
+        }
+
+        // Logic
+        if(approve) {
+            // It is approved
+            if(placeSchedule.get().getStatus() == 2) {
+                // Previous schedules with the same place_id and day should be deleted
+                boolean deletedPreviousSchedules =
+                        placeScheduleDao.deleteByDayAndPlaceId(
+                                placeSchedule.get().getDay(), placeSchedule.get().getPlaceId());
+                if(deletedPreviousSchedules) {
+                    placeSchedule.get().setStatus(1);
+                } else {
+                    result.setErrorCode(500);
+                    result.setMessage(new Message("Error de servidor"));
+                    return result;
+                }
+            } else if (placeSchedule.get().getStatus() == 3) {
+                placeSchedule.get().setStatus(0);
+            }
+        } else {
+            // It is rejected
+            if(placeSchedule.get().getStatus() == 2) {
+                placeSchedule.get().setStatus(0);
+            } else if (placeSchedule.get().getStatus() == 3) {
+                placeSchedule.get().setStatus(1);
+            }
+        }
+
+
+        Optional<PlaceSchedule> updatedPlaceSchedule = placeScheduleDao.update(placeSchedule.get());
+        if(updatedPlaceSchedule.isPresent()) {
+            updatedPlaceSchedule = Optional.of(cleanPlaceScheduleFields(updatedPlaceSchedule.get(), false));
+        } else {
+            updatedPlaceSchedule = Optional.of(cleanPlaceScheduleFields(placeSchedule.get(), false));
+        }
+        result.setData(updatedPlaceSchedule);
+        return result;
+    }
+
     public Result<PlaceSchedule> deletePlaceSchedule(String uuid, User user) {
         Result<PlaceSchedule> result = new Result<>();
 

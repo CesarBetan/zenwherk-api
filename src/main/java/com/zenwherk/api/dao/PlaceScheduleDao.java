@@ -135,4 +135,18 @@ public class PlaceScheduleDao {
         }
         return Optional.empty();
     }
+
+    public boolean deleteByDayAndPlaceId(Integer day, Long placeId) {
+        String sql = "UPDATE place_schedule SET " +
+                "status=0, updated_at=? WHERE day=? AND place_id=?";
+        try {
+            jdbcTemplate.update(sql,Timestamp.from(Instant.now()), day, placeId);
+            logger.debug(String.format("Updating place schedule with place id: %d", placeId));
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+        return false;
+    }
 }

@@ -54,6 +54,40 @@ public class PlaceScheduleEndpoint {
         return response;
     }
 
+    @PUT
+    @Path("/place_schedule/{uuid}/approval")
+    public Response approve(@PathParam("uuid") String uuid) {
+        Result<PlaceSchedule> placeScheduleResult = placeScheduleService.approveOrReject(uuid, true);
+        Response response;
+        if (placeScheduleResult.getData().isPresent()) {
+            response = Response.ok(placeScheduleResult.getData().get()).build();
+        } else {
+            if(placeScheduleResult.getErrorCode() == null || placeScheduleResult.getErrorCode() < 1) {
+                response = Response.serverError().entity(new Message("Error de servidor")).build();
+            }  else {
+                response = Response.status(placeScheduleResult.getErrorCode()).entity(placeScheduleResult.getMessage()).build();
+            }
+        }
+        return response;
+    }
+
+    @PUT
+    @Path("/place_schedule/{uuid}/rejection")
+    public Response reject(@PathParam("uuid") String uuid) {
+        Result<PlaceSchedule> placeScheduleResult = placeScheduleService.approveOrReject(uuid, false);
+        Response response;
+        if (placeScheduleResult.getData().isPresent()) {
+            response = Response.ok(placeScheduleResult.getData().get()).build();
+        } else {
+            if(placeScheduleResult.getErrorCode() == null || placeScheduleResult.getErrorCode() < 1) {
+                response = Response.serverError().entity(new Message("Error de servidor")).build();
+            }  else {
+                response = Response.status(placeScheduleResult.getErrorCode()).entity(placeScheduleResult.getMessage()).build();
+            }
+        }
+        return response;
+    }
+
     @DELETE
     @Path("/place_schedule/{uuid}")
     public Response delete(@PathParam("uuid") String uuid, User user) {
