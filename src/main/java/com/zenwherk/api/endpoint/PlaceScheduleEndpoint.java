@@ -37,6 +37,23 @@ public class PlaceScheduleEndpoint {
         return response;
     }
 
+    @PUT
+    @Path("/place_schedule/{uuid}")
+    public Response update(@PathParam("uuid") String uuid, PlaceSchedule placeSchedule) {
+        Result<PlaceSchedule> placeScheduleResult = placeScheduleService.update(uuid, placeSchedule);
+        Response response;
+        if (placeScheduleResult.getData().isPresent()) {
+            response = Response.ok(placeScheduleResult.getData().get()).build();
+        } else {
+            if(placeScheduleResult.getErrorCode() == null || placeScheduleResult.getErrorCode() < 1) {
+                response = Response.serverError().entity(new Message("Error de servidor")).build();
+            }  else {
+                response = Response.status(placeScheduleResult.getErrorCode()).entity(placeScheduleResult.getMessage()).build();
+            }
+        }
+        return response;
+    }
+
     @DELETE
     @Path("/place_schedule/{uuid}")
     public Response delete(@PathParam("uuid") String uuid, User user) {

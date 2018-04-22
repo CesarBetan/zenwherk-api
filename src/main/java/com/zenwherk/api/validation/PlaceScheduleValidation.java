@@ -45,4 +45,19 @@ public class PlaceScheduleValidation {
         result.setMessage(new Message(message));
         return result;
     }
+
+    public static Result<PlaceSchedule> validateUpdate(PlaceSchedule placeSchedule) {
+        Result<PlaceSchedule> result = new Result<>();
+        result.setErrorCode(null);
+
+        String message = "";
+
+        if(placeSchedule == null) {
+            result.setErrorCode(400);
+            message += "El cuerpo del post no puede ser nulo. ";
+        }
+
+        result.setMessage(new Message(message));
+        return result;
+    }
 }

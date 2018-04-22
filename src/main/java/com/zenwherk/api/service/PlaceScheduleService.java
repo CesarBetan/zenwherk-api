@@ -141,6 +141,34 @@ public class PlaceScheduleService {
         return result;
     }
 
+    public Result<PlaceSchedule> update(String uuid, PlaceSchedule placeSchedule) {
+        Result<PlaceSchedule> result;
+
+        Optional<PlaceSchedule> oldPlaceSchedule = placeScheduleDao.getByUuid(uuid);
+        if(!oldPlaceSchedule.isPresent()) {
+            result = new Result<>();
+            result.setErrorCode(404);
+            result.setMessage(new Message("El horario no existe"));
+            return result;
+        }
+
+        result = PlaceScheduleValidation.validateUpdate(placeSchedule);
+        if(result.getErrorCode() != null && result.getErrorCode() > 0) {
+            return result;
+        }
+
+        PlaceSchedule newPlaceSchedule = oldPlaceSchedule.get();
+        newPlaceSchedule.setOpenTime((placeSchedule.getOpenTime() != null) ? placeSchedule.getOpenTime() : newPlaceSchedule.getOpenTime());
+        newPlaceSchedule.setCloseTime((placeSchedule.getCloseTime() != null) ? placeSchedule.getCloseTime() : newPlaceSchedule.getCloseTime());
+
+        Optional<PlaceSchedule> updatedPlaceSchedule = placeScheduleDao.update(newPlaceSchedule);
+        if(updatedPlaceSchedule.isPresent()) {
+            updatedPlaceSchedule = Optional.of(cleanPlaceScheduleFields(updatedPlaceSchedule.get(), false));
+        }
+        result.setData(updatedPlaceSchedule);
+        return result;
+    }
+
     public Result<PlaceSchedule> deletePlaceSchedule(String uuid, User user) {
         Result<PlaceSchedule> result = new Result<>();
 
