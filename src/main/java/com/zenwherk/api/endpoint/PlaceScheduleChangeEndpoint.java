@@ -3,14 +3,13 @@ package com.zenwherk.api.endpoint;
 
 import com.zenwherk.api.domain.PlaceScheduleChange;
 import com.zenwherk.api.pojo.Message;
+import com.zenwherk.api.pojo.MessageResult;
 import com.zenwherk.api.pojo.Result;
 import com.zenwherk.api.service.PlaceScheduleChangeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -35,6 +34,32 @@ public class PlaceScheduleChangeEndpoint {
             }  else {
                 response = Response.status(placeScheduleChangeResult.getErrorCode()).entity(placeScheduleChangeResult.getMessage()).build();
             }
+        }
+        return response;
+    }
+
+    @PUT
+    @Path("/place_schedule_change/{uuid}/approval")
+    public Response approve(@PathParam("uuid") String uuid) {
+        MessageResult result = placeScheduleChangeService.approveReject(uuid, true);
+        Response response;
+        if(result.getErrorCode() != null && result.getErrorCode() > 0) {
+            response = Response.status(result.getErrorCode()).entity(result.getMessage()).build();
+        } else {
+            response = Response.ok(result.getMessage()).build();
+        }
+        return response;
+    }
+
+    @PUT
+    @Path("/place_schedule_change/{uuid}/rejection")
+    public Response reject(@PathParam("uuid") String uuid) {
+        MessageResult result = placeScheduleChangeService.approveReject(uuid, false);
+        Response response;
+        if(result.getErrorCode() != null && result.getErrorCode() > 0) {
+            response = Response.status(result.getErrorCode()).entity(result.getMessage()).build();
+        } else {
+            response = Response.ok(result.getMessage()).build();
         }
         return response;
     }

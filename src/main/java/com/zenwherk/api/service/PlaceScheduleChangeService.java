@@ -5,6 +5,7 @@ import com.zenwherk.api.domain.PlaceSchedule;
 import com.zenwherk.api.domain.PlaceScheduleChange;
 import com.zenwherk.api.domain.User;
 import com.zenwherk.api.pojo.Message;
+import com.zenwherk.api.pojo.MessageResult;
 import com.zenwherk.api.pojo.Result;
 import com.zenwherk.api.validation.PlaceScheduleChangeValidation;
 import org.slf4j.Logger;
@@ -63,6 +64,60 @@ public class PlaceScheduleChangeService {
         }
 
         result.setData(insertedPlaceScheduleChange);
+        return result;
+    }
+
+    public MessageResult approveReject(String uuid, boolean approve) {
+        MessageResult result = new MessageResult();
+
+        Optional<PlaceScheduleChange> placeScheduleChange = placeScheduleChangeDao.getByUuid(uuid);
+        if(!placeScheduleChange.isPresent()) {
+            result.setErrorCode(404);
+            result.setMessage(new Message("El cambio no es válido"));
+            return result;
+        }
+
+        if(approve) {
+            Result<PlaceSchedule> placeScheduleResult = placeScheduleService.getPlaceScheduleById(placeScheduleChange.get().getPlaceScheduleId(), true);
+            if(!placeScheduleResult.getData().isPresent()) {
+                result.setErrorCode(404);
+                result.setMessage(new Message("El horario no es válido"));
+                return result;
+            }
+
+            PlaceSchedule newPlaceSchedule = placeScheduleResult.getData().get();
+
+            // Data was found, now update the corresponding field
+            switch (placeScheduleChange.get().getColumnToChange()) {
+                case "open_time":
+                    newPlaceSchedule.setOpenTime(placeScheduleChange.get().getNewTime());
+                    break;
+                case "close_time":
+                    newPlaceSchedule.setCloseTime(placeScheduleChange.get().getNewTime());
+                    break;
+            }
+
+            Result<PlaceSchedule> updatedPlaceSchedule = placeScheduleService.update(newPlaceSchedule.getUuid(), newPlaceSchedule);
+            if(!updatedPlaceSchedule.getData().isPresent()) {
+                result.setErrorCode(500);
+                result.setMessage(new Message("Error de servidor"));
+                return result;
+            }
+        }
+
+
+        boolean deletedCorrectly = placeScheduleChangeDao.deleteByUuid(placeScheduleChange.get().getUuid());
+        if(!deletedCorrectly) {
+            result.setErrorCode(500);
+            result.setMessage(new Message("Error de servidor"));
+            return result;
+        }
+
+        if(approve) {
+            result.setMessage(new Message("Cambio aplicado correctamente"));
+        } else {
+            result.setMessage(new Message("Cambio descartado correctamente"));
+        }
         return result;
     }
 
