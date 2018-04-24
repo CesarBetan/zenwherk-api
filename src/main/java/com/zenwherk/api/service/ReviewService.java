@@ -179,6 +179,31 @@ public class ReviewService {
         return result;
     }
 
+    public MessageResult acceptRejectReportedReview(String uuid, boolean accept) {
+        MessageResult result = new Result<>();
+
+        Optional<Review> review = reviewDao.getReportedReviewByUuid(uuid);
+        if(review.isPresent()) {
+            if(accept) {
+                review.get().setStatus(0);
+            } else {
+                review.get().setReported(0);
+            }
+
+            Optional<Review> updatedReview = reviewDao.update(review.get());
+            if(updatedReview.isPresent()) {
+                result.setMessage(new Message("Reseña descartada de manera exitosa"));
+            } else {
+                result.setMessage(new Message("Reseña eliminada de manera exitosa"));
+            }
+        } else {
+            result.setErrorCode(404);
+            result.setMessage(new Message("El review no existe"));
+        }
+
+        return result;
+    }
+
     private Review cleanReviewFields(Review review, boolean keepId) {
         if(!keepId) {
             review.setId(null);

@@ -69,4 +69,30 @@ public class ReviewEndpoint {
         return response;
     }
 
+
+    @PUT
+    @Path("/review/{uuid}/approval")
+    public Response acceptReportedReview(@PathParam("uuid") String uuid) {
+        MessageResult reviewResult = reviewService.acceptRejectReportedReview(uuid, true);
+        Response response;
+        if(reviewResult.getErrorCode() == null || reviewResult.getErrorCode() < 1) {
+            response = Response.ok(reviewResult.getMessage()).build();
+        }  else {
+            response = Response.status(reviewResult.getErrorCode()).entity(reviewResult.getMessage()).build();
+        }
+        return response;
+    }
+
+    @PUT
+    @Path("/review/{uuid}/rejection")
+    public Response rejectReportedReview(@PathParam("uuid") String uuid) {
+        MessageResult reviewResult = reviewService.acceptRejectReportedReview(uuid, false);
+        Response response;
+        if(reviewResult.getErrorCode() == null || reviewResult.getErrorCode() < 1) {
+            response = Response.ok(reviewResult.getMessage()).build();
+        }  else {
+            response = Response.status(reviewResult.getErrorCode()).entity(reviewResult.getMessage()).build();
+        }
+        return response;
+    }
 }

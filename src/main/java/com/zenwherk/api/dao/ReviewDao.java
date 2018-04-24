@@ -122,6 +122,20 @@ public class ReviewDao {
         return Optional.empty();
     }
 
+    public Optional<Review> getReportedReviewByUuid(String uuid) {
+        String sql = "SELECT * FROM review WHERE uuid = ? AND reported = 1 AND status > 0";
+        try {
+            BeanPropertyRowMapper<Review> rowMapper = new BeanPropertyRowMapper<>(Review.class);
+            Review review = jdbcTemplate.queryForObject(sql, rowMapper, uuid);
+            logger.debug("Getting reported review by uuid " + uuid);
+            return Optional.of(review);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+        return Optional.empty();
+    }
+
     public Optional<Review> insert(Review review) {
         String newUuid = UUID.randomUUID().toString();
         String sql = "INSERT INTO review (uuid, review_rating, review_text, reported, status, " +
