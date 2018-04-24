@@ -6,6 +6,7 @@ import com.zenwherk.api.domain.Review;
 import com.zenwherk.api.domain.User;
 import com.zenwherk.api.pojo.ListResult;
 import com.zenwherk.api.pojo.Message;
+import com.zenwherk.api.pojo.MessageResult;
 import com.zenwherk.api.pojo.Result;
 import com.zenwherk.api.validation.ReviewValidation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -125,6 +126,29 @@ public class ReviewService {
         }
 
         result.setData(insertedReview);
+        return result;
+    }
+
+    public MessageResult report(String uuid) {
+        MessageResult result = new MessageResult();
+
+        Optional<Review> review = reviewDao.getByUuid(uuid);
+        if(!review.isPresent()) {
+            result.setErrorCode(404);
+            result.setMessage(new Message("Review no disponible"));
+            return result;
+        }
+
+        review.get().setReported(1);
+
+        Optional<Review> updatedReview = reviewDao.update(review.get());
+        if(!updatedReview.isPresent()) {
+            result.setErrorCode(500);
+            result.setMessage(new Message("Error de servidor"));
+            return result;
+        }
+
+        result.setMessage(new Message("Review reportada correctamente"));
         return result;
     }
 
