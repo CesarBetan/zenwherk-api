@@ -1,10 +1,7 @@
 package com.zenwherk.api.service;
 
 import com.zenwherk.api.dao.PlaceDao;
-import com.zenwherk.api.domain.Place;
-import com.zenwherk.api.domain.PlaceFeature;
-import com.zenwherk.api.domain.PlaceSchedule;
-import com.zenwherk.api.domain.User;
+import com.zenwherk.api.domain.*;
 import com.zenwherk.api.pojo.ListResult;
 import com.zenwherk.api.pojo.Message;
 import com.zenwherk.api.pojo.Result;
@@ -33,6 +30,9 @@ public class PlaceService {
 
     @Autowired
     private PlaceScheduleService placeScheduleService;
+
+    @Autowired
+    private ReviewService reviewService;
 
     private static final Logger logger = LoggerFactory.getLogger(PlaceService.class);
 
@@ -83,6 +83,13 @@ public class PlaceService {
                 ListResult<PlaceSchedule> placeSchedules = placeScheduleService.getApprovedSchedulesByPlaceId(place.get().getId(), false);
                 if(placeSchedules.getData().isPresent()) {
                     place.get().setSchedules(placeSchedules.getData().get());
+                }
+
+                // Get the reviews
+                place.get().setReviews(new Review[0]);
+                ListResult<Review> placeReviews = reviewService.getReviewsByPlaceId(place.get().getId(), false);
+                if(placeReviews.getData().isPresent()) {
+                    place.get().setReviews(placeReviews.getData().get());
                 }
             }
         } else {

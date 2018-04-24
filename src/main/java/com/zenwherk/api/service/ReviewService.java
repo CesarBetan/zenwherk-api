@@ -4,6 +4,7 @@ import com.zenwherk.api.dao.ReviewDao;
 import com.zenwherk.api.domain.Place;
 import com.zenwherk.api.domain.Review;
 import com.zenwherk.api.domain.User;
+import com.zenwherk.api.pojo.ListResult;
 import com.zenwherk.api.pojo.Message;
 import com.zenwherk.api.pojo.Result;
 import com.zenwherk.api.validation.ReviewValidation;
@@ -44,6 +45,33 @@ public class ReviewService {
             result.setMessage(new Message("El review no existe"));
         }
         result.setData(review);
+        return result;
+    }
+
+    public ListResult<Review> getReviewsByPlaceId(Long id, boolean keepId) {
+        ListResult<Review> result = new ListResult<>();
+
+        Optional<Review[]> queriedReviews = reviewDao.getReviewsByPlaceId(id);
+        if(queriedReviews.isPresent()) {
+            Review[] reviews = new Review[queriedReviews.get().length];
+            for(int i = 0; i < reviews.length; i++) {
+                Long userId = queriedReviews.get()[i].getUserId();
+                Review review = cleanReviewFields(queriedReviews.get()[i], keepId);
+
+                Result<User> uploadedBy = userService.getUserById(userId, false, false);
+                if(uploadedBy.getData().isPresent()) {
+                    review.setUser(uploadedBy.getData().get());
+                }
+
+                reviews[i] = review;
+            }
+            queriedReviews = Optional.of(reviews);
+        } else {
+            result.setErrorCode(500);
+            result.setMessage(new Message("Error del servidor"));
+        }
+
+        result.setData(queriedReviews);
         return result;
     }
 
