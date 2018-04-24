@@ -92,6 +92,36 @@ public class ReviewDao {
         return Optional.empty();
     }
 
+    public Optional<Review[]> getReportedReviews() {
+        String sql = "SELECT * FROM review WHERE status > 0  AND reported = 1 ORDER BY created_at DESC ";
+        try {
+            LinkedList<Review> reviewsList = new LinkedList<>();
+            List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
+            for(Map<String, Object> row : rows) {
+                Review review = new Review();
+
+                review.setId(new Long((Integer) row.get("id")));
+                review.setUuid((String) row.get("uuid"));
+                review.setReviewRating((Integer) row.get("review_rating"));
+                review.setReviewText((String) row.get("review_text"));
+                review.setReported((Integer) row.get("reported"));
+                review.setStatus((Integer) row.get("status"));
+                review.setCreatedAt((Date) row.get("created_at"));
+                review.setUpdatedAt((Date) row.get("updated_at"));
+                review.setUserId(new Long((Integer) row.get("user_id")));
+                review.setPlaceId(new Long((Integer) row.get("place_id")));
+
+                reviewsList.add(review);
+            }
+            logger.debug("Obtaining reported reviews");
+            return Optional.of(reviewsList.toArray(new Review[reviewsList.size()]));
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+        return Optional.empty();
+    }
+
     public Optional<Review> insert(Review review) {
         String newUuid = UUID.randomUUID().toString();
         String sql = "INSERT INTO review (uuid, review_rating, review_text, reported, status, " +

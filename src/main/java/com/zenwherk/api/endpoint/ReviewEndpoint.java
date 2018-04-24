@@ -2,17 +2,12 @@ package com.zenwherk.api.endpoint;
 
 
 import com.zenwherk.api.domain.Review;
-import com.zenwherk.api.pojo.Message;
-import com.zenwherk.api.pojo.MessageResult;
-import com.zenwherk.api.pojo.Result;
+import com.zenwherk.api.pojo.*;
 import com.zenwherk.api.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -49,6 +44,26 @@ public class ReviewEndpoint {
         if(result.getErrorCode() == null || result.getErrorCode() < 1) {
             response = Response.ok(result.getMessage()).build();
         }  else {
+            response = Response.status(result.getErrorCode()).entity(result.getMessage()).build();
+        }
+        return response;
+    }
+
+    @GET
+    @Path("/review")
+    public Response searchReviews(@QueryParam("q") String query) {
+        ListResult<Review> result;
+        if(query != null && query.trim().equals("reported")) {
+            result = reviewService.getReportedReviews();
+        } else {
+            result = new ListResult<>();
+            result.setErrorCode(400);
+            result.setMessage(new Message("Query inválido"));
+        }
+        Response response;
+        if(result.getData().isPresent()) {
+            response = Response.ok(new ListResponse<>(result.getData().get())).build();
+        } else {
             response = Response.status(result.getErrorCode()).entity(result.getMessage()).build();
         }
         return response;

@@ -76,6 +76,33 @@ public class ReviewService {
         return result;
     }
 
+    public ListResult<Review> getReportedReviews() {
+        ListResult<Review> result = new ListResult<>();
+
+        Optional<Review[]> queriedReviews = reviewDao.getReportedReviews();
+        if(queriedReviews.isPresent()) {
+            Review[] reviews = new Review[queriedReviews.get().length];
+            for(int i = 0; i < reviews.length; i++) {
+                Long userId = queriedReviews.get()[i].getUserId();
+                Review review = cleanReviewFields(queriedReviews.get()[i], false);
+
+                Result<User> uploadedBy = userService.getUserById(userId, false, false);
+                if(uploadedBy.getData().isPresent()) {
+                    review.setUser(uploadedBy.getData().get());
+                }
+
+                reviews[i] = review;
+            }
+            queriedReviews = Optional.of(reviews);
+        } else {
+            result.setErrorCode(500);
+            result.setMessage(new Message("Error del servidor"));
+        }
+
+        result.setData(queriedReviews);
+        return result;
+    }
+
     public Result<Review> insert(Review review) {
         Result<Review> result = ReviewValidation.validate(review);
         if(result.getErrorCode() != null && result.getErrorCode() > 0){
