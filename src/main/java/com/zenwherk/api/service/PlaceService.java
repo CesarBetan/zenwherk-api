@@ -14,6 +14,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -208,6 +211,68 @@ public class PlaceService {
         placeDao.update(place.get());
 
         result.setData(Optional.of(cleanPlaceFields(place.get(), false, false)));
+        return result;
+    }
+
+    public ListResult<Place> searchPlaces(String query, List<String> categories, List<String> features, boolean keepId, boolean keepStatus) {
+        ListResult<Place> result = new ListResult<>();
+
+        boolean filterByFeatures = false;
+        HashMap<String, Boolean> featuresMap = new HashMap<>();
+        if(features != null && features.size() > 0) {
+            filterByFeatures = true;
+            for(String feature : features) {
+                featuresMap.put(feature, true);
+            }
+        }
+
+        Optional<Place[]> queriedPlaces = placeDao.searchApprovedPlaces(query, categories);
+        if(queriedPlaces.isPresent()) {
+            LinkedList<Place> filteredPlaces = new LinkedList<>();
+            for(int i = 0; i < queriedPlaces.get().length; i++) {
+                Place place = queriedPlaces.get()[i];
+                Long placeId = place.getId();
+                place = cleanPlaceFields(place, keepId, keepStatus);
+
+                // Get the features of this place
+                place.setFeatures(new PlaceFeature[0]);
+                ListResult<PlaceFeature> placeFeatures = placeFeatureService.getApprovedFeaturesByPlaceId(placeId, false);
+                if(placeFeatures.getData().isPresent()) {
+                    place.setFeatures(placeFeatures.getData().get());
+                }
+
+                // Get the schedules of this place
+                place.setSchedules(new PlaceSchedule[0]);
+                ListResult<PlaceSchedule> placeSchedules = placeScheduleService.getApprovedSchedulesByPlaceId(placeId, false);
+                if(placeSchedules.getData().isPresent()) {
+                    place.setSchedules(placeSchedules.getData().get());
+                }
+
+                // If there was a feature filter delete this place unless it has one of the features
+                if(filterByFeatures) {
+                    boolean hasAtLeastOneFeature = false;
+
+                    for(PlaceFeature placeFeature : place.getFeatures()) {
+                        if(featuresMap.get(String.valueOf(placeFeature.getFeatureEnum())) != null && featuresMap.get(String.valueOf(placeFeature.getFeatureEnum()))) {
+                            hasAtLeastOneFeature = true;
+                        }
+                    }
+
+                    if(hasAtLeastOneFeature) {
+                        filteredPlaces.add(place);
+                    }
+                } else {
+                    filteredPlaces.add(place);
+                }
+            }
+
+            queriedPlaces = Optional.of(filteredPlaces.toArray(new Place[filteredPlaces.size()]));
+        } else {
+            result.setErrorCode(500);
+            result.setMessage(new Message("Error del servidor"));
+        }
+
+        result.setData(queriedPlaces);
         return result;
     }
 

@@ -11,8 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Repository
 public class PlaceDao {
@@ -92,4 +91,66 @@ public class PlaceDao {
         }
         return Optional.empty();
     }
+
+    public Place[] toPlaceArray(List<Map<String, Object>> rows) {
+        LinkedList<Place> placeList = new LinkedList<>();
+        for(Map<String, Object> row : rows) {
+            Place place = new Place();
+
+            place.setId(new Long((Integer) row.get("id")));
+            place.setUuid((String) row.get("uuid"));
+            place.setName((String) row.get("name"));
+            place.setAddress((String) row.get("address"));
+            place.setDescription((String) row.get("description"));
+            place.setPhone((String) row.get("phone"));
+            place.setCategory((Integer) row.get("category"));
+            place.setWebsite((String) row.get("website"));
+            place.setLatitude(new Double((Float) row.get("latitude")));
+            place.setLongitude(new Double((Float) row.get("longitude")));
+            place.setStatus((Integer) row.get("status"));
+            place.setCreatedAt((Date) row.get("created_at"));
+            place.setUpdatedAt((Date) row.get("updated_at"));
+            place.setUploadedBy(new Long((Integer) row.get("uploaded_by")));
+
+            placeList.add(place);
+        }
+        return placeList.toArray(new Place[placeList.size()]);
+    }
+
+
+    public Optional<Place[]> searchApprovedPlaces(String query, List<String> categories) {
+        String sql = "SELECT * FROM place WHERE status IN(1,3) ";
+        if(query != null && query.trim().length() > 0) {
+            // The user wants to search by name, filter the query
+            sql += "AND name LIKE ? ";
+        }
+        if(categories != null && categories.size() > 0) {
+            // The user wants to filter by category
+            sql += "AND category IN (";
+            for(int i = 0; i < categories.size(); i++) {
+                if(i == 0) {
+                    sql += categories.get(i);
+                } else {
+                    sql += String.format(", %s", categories.get(i));
+                }
+            }
+            sql += ") ";
+        }
+        try {
+            List<Map<String, Object>> rows;
+            if(query != null && query.trim().length() > 0) {
+                rows = jdbcTemplate.queryForList(sql, String.format("%%%s%%", query));
+            } else {
+                rows = jdbcTemplate.queryForList(sql);
+            }
+            Place[] places = toPlaceArray(rows);
+            logger.debug("Getting all approved places");
+            return Optional.of(places);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+        return Optional.empty();
+    }
+
 }
