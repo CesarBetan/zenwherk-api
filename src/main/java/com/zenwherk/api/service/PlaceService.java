@@ -85,7 +85,6 @@ public class PlaceService {
                     place.get().setSchedules(placeSchedules.getData().get());
                 }
             }
-
         } else {
             result.setErrorCode(404);
             result.setMessage(new Message("El lugar no existe"));

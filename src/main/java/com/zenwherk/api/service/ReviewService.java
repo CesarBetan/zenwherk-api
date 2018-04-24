@@ -24,6 +24,29 @@ public class ReviewService {
     @Autowired
     private PlaceService placeService;
 
+    public Result<Review> getReviewByUuid(String uuid, boolean keepId) {
+        Result<Review> result = new Result<>();
+
+        Optional<Review> review = reviewDao.getByUuid(uuid);
+        if(review.isPresent()) {
+            Long userId = review.get().getUserId();
+            review = Optional.of(cleanReviewFields(review.get(), keepId));
+
+            if(review.isPresent()) {
+                // Get the user that uploaded the place
+                Result<User> uploadedBy = userService.getUserById(userId, false, false);
+                if(uploadedBy.getData().isPresent()) {
+                    review.get().setUser(uploadedBy.getData().get());
+                }
+            }
+        } else {
+            result.setErrorCode(404);
+            result.setMessage(new Message("El review no existe"));
+        }
+        result.setData(review);
+        return result;
+    }
+
     public Result<Review> insert(Review review) {
         Result<Review> result = ReviewValidation.validate(review);
         if(result.getErrorCode() != null && result.getErrorCode() > 0){
