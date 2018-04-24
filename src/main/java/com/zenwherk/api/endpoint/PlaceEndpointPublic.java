@@ -37,13 +37,26 @@ public class PlaceEndpointPublic {
 
     @GET
     @Path("/place")
-    public Response search(@QueryParam("name") String name, @QueryParam("categories") List<String> categories, @QueryParam("features") List<String> features) {
-        ListResult<Place> placeListResult = placeService.searchPlaces(name, categories, features, false, false);
+    public Response search(@QueryParam("name") String name,
+                           @QueryParam("categories") List<String> categories,
+                           @QueryParam("features") List<String> features,
+                           @QueryParam("latitude") String latitude,
+                           @QueryParam("longitude") String longitude) {
+        ListResult<Place> placeListResult;
+        if(latitude != null && longitude != null) {
+            placeListResult = placeService.searchNearPlaces(latitude, longitude);
+        } else {
+            placeListResult = placeService.searchPlaces(name, categories, features, false, false);
+        }
         Response response;
         if(placeListResult.getData().isPresent()) {
             response = Response.ok(new ListResponse<>(placeListResult.getData().get())).build();
         } else {
-            response = Response.serverError().entity(new Message("Error de servidor")).build();
+            if(placeListResult.getErrorCode() != null && placeListResult.getErrorCode() > 0) {
+                response = Response.status(placeListResult.getErrorCode()).entity(placeListResult.getMessage()).build();
+            } else {
+                response = Response.serverError().entity(new Message("Error de servidor")).build();
+            }
         }
         return response;
     }

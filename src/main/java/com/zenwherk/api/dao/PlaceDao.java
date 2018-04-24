@@ -92,7 +92,7 @@ public class PlaceDao {
         return Optional.empty();
     }
 
-    public Place[] toPlaceArray(List<Map<String, Object>> rows) {
+    private Place[] toPlaceArray(List<Map<String, Object>> rows, boolean addDistance) {
         LinkedList<Place> placeList = new LinkedList<>();
         for(Map<String, Object> row : rows) {
             Place place = new Place();
@@ -112,11 +112,14 @@ public class PlaceDao {
             place.setUpdatedAt((Date) row.get("updated_at"));
             place.setUploadedBy(new Long((Integer) row.get("uploaded_by")));
 
+            if(addDistance) {
+                place.setDistanceInKm((Double) row.get("distance_in_km"));
+            }
+
             placeList.add(place);
         }
         return placeList.toArray(new Place[placeList.size()]);
     }
-
 
     public Optional<Place[]> searchApprovedPlaces(String query, List<String> categories) {
         String sql = "SELECT * FROM place WHERE status IN(1,3) ";
@@ -143,8 +146,30 @@ public class PlaceDao {
             } else {
                 rows = jdbcTemplate.queryForList(sql);
             }
-            Place[] places = toPlaceArray(rows);
+            Place[] places = toPlaceArray(rows, false);
             logger.debug("Getting all approved places");
+            return Optional.of(places);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+        return Optional.empty();
+    }
+
+    public Optional<Place[]> searchNearPlaces(Double latitude, Double longitude) {
+        String sql = "SELECT id, uuid, name, address, description, phone, category, " +
+                "website, latitude, longitude, status, created_at, updated_at, uploaded_by, " +
+                "111.045 * DEGREES(ACOS(COS(RADIANS(?)) * COS(RADIANS(latitude)) " +
+                "* COS(RADIANS(longitude) - RADIANS(?)) + SIN(RADIANS(?)) * SIN(RADIANS(latitude)))) " +
+                "AS distance_in_km " +
+                "FROM place WHERE status IN(1,3) " +
+                "ORDER BY distance_in_km ASC " +
+                "LIMIT 0,20";
+        try {
+            // latitude, longitude, latitude
+            List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, latitude, longitude, latitude);
+            Place[] places = toPlaceArray(rows, true);
+            logger.debug("Getting all approved near places");
             return Optional.of(places);
         } catch (Exception e) {
             e.printStackTrace();

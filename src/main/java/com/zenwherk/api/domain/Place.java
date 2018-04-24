@@ -35,6 +35,7 @@ public class Place extends Entity {
     private User user;
     private PlaceFeature[] features;
     private PlaceSchedule[] schedules;
+    private Double distanceInKm;
 
     @Override
     public Long getId() {
@@ -176,6 +177,14 @@ public class Place extends Entity {
         this.schedules = schedules;
     }
 
+    public Double getDistanceInKm() {
+        return distanceInKm;
+    }
+
+    public void setDistanceInKm(Double distanceInKm) {
+        this.distanceInKm = distanceInKm;
+    }
+
     @Override
     public String toString() {
         return "Place{" +
@@ -196,6 +205,7 @@ public class Place extends Entity {
                 ", user=" + user +
                 ", features=" + Arrays.toString(features) +
                 ", schedules=" + Arrays.toString(schedules) +
+                ", distanceInKm=" + distanceInKm +
                 '}';
     }
 }

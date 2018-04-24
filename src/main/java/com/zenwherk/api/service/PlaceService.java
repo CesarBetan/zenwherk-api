@@ -276,6 +276,39 @@ public class PlaceService {
         return result;
     }
 
+    public ListResult<Place> searchNearPlaces(String latitude, String longitude) {
+        ListResult<Place> result = new ListResult<>();
+        Double latDouble;
+        Double lngDouble;
+        try  {
+            latDouble = Double.parseDouble(latitude);
+            lngDouble = Double.parseDouble(longitude);
+        } catch (Exception e) {
+            result.setErrorCode(400);
+            result.setMessage(new Message("Latitud y longitud inválidos"));
+            return result;
+        }
+
+        Optional<Place[]> queriedPlaces = placeDao.searchNearPlaces(latDouble, lngDouble);
+        if (queriedPlaces.isPresent()) {
+            LinkedList<Place> cleanedPlaces = new LinkedList<>();
+            for(int i = 0; i < queriedPlaces.get().length; i++) {
+                Place place = queriedPlaces.get()[i];
+                double distanceInKm = place.getDistanceInKm();
+                place = cleanPlaceFields(place, false, false);
+                place.setDistanceInKm(distanceInKm);
+                cleanedPlaces.add(place);
+            }
+            queriedPlaces = Optional.of(cleanedPlaces.toArray(new Place[cleanedPlaces.size()]));
+        } else {
+            result.setErrorCode(500);
+            result.setMessage(new Message("Error del servidor"));
+        }
+
+        result.setData(queriedPlaces);
+        return result;
+    }
+
     private Place cleanPlaceFields(Place place, boolean keepId, boolean keepStatus) {
         if(!keepId) {
             place.setId(null);
@@ -283,6 +316,7 @@ public class PlaceService {
         if(!keepStatus) {
             place.setStatus(null);
         }
+        place.setDistanceInKm(null);
         place.setUploadedBy(null);
         place.setUser(null);
         return place;
