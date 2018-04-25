@@ -139,7 +139,7 @@ public class PlaceScheduleService {
         } else {
             // The place to which this schedule belongs to is already approved or
             // to be deleted and that means that it is approved
-            // If the user is an admin, the feature is immediately approved, if not,
+            // If the user is an admin, the schedule is immediately approved, if not,
             // it should go through a change log process
             // Role 1: Admin
             // Role 2: User
@@ -298,6 +298,40 @@ public class PlaceScheduleService {
         }
 
         result.setData(updatedPlaceSchedule);
+        return result;
+    }
+
+    public ListResult<PlaceSchedule> getSchedulesToBeAddedOrEliminated() {
+        ListResult<PlaceSchedule> result = new ListResult<>();
+        Optional<PlaceSchedule[]> queriedPlaceSchedules = placeScheduleDao.getSchedulesToBeAddedOrDeleted();
+        if(queriedPlaceSchedules.isPresent()) {
+            PlaceSchedule[] schedules = new PlaceSchedule[queriedPlaceSchedules.get().length];
+            for (int i = 0; i < schedules.length; i++) {
+                schedules[i] = queriedPlaceSchedules.get()[i];
+                schedules[i].setId(null);
+                schedules[i].setUploadedBy(null);
+
+                // Get the place to which this schedule belongs to
+                Result<Place> placeResult = placeService.getPlaceById(schedules[i].getPlaceId(), true, true);
+                if(placeResult.getData().isPresent()) {
+                    placeResult.getData().get().setId(null);
+                    placeResult.getData().get().setFeatures(null);
+                    placeResult.getData().get().setRating(null);
+                    placeResult.getData().get().setUser(null);
+                    placeResult.getData().get().setFeatures(null);
+                    placeResult.getData().get().setSchedules(null);
+                    schedules[i].setPlace(placeResult.getData().get());
+                }
+
+                schedules[i].setPlaceId(null);
+            }
+            queriedPlaceSchedules = Optional.of(schedules);
+        } else {
+            result.setErrorCode(500);
+            result.setMessage(new Message("Error del servidor"));
+        }
+
+        result.setData(queriedPlaceSchedules);
         return result;
     }
 

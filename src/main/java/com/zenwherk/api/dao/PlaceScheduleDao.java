@@ -111,6 +111,37 @@ public class PlaceScheduleDao {
         return Optional.empty();
     }
 
+    public Optional<PlaceSchedule[]> getSchedulesToBeAddedOrDeleted() {
+        String sql = "SELECT * FROM place_schedule WHERE status IN (2,3) AND place_id IN (SELECT place.id FROM place WHERE place.status > 0)";
+        try {
+            LinkedList<PlaceSchedule> placeSchedulesList = new LinkedList<>();
+            List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
+
+            for(Map<String, Object> row : rows) {
+                PlaceSchedule placeSchedule = new PlaceSchedule();
+
+                placeSchedule.setId(new Long((Integer) row.get("id")));
+                placeSchedule.setUuid((String) row.get("uuid"));
+                placeSchedule.setDay((Integer) row.get("day"));
+                placeSchedule.setOpenTime((Date) row.get("open_time"));
+                placeSchedule.setCloseTime((Date) row.get("close_time"));
+                placeSchedule.setStatus((Integer) row.get("status"));
+                placeSchedule.setCreatedAt((Date) row.get("created_at"));
+                placeSchedule.setUpdatedAt((Date) row.get("updated_at"));
+                placeSchedule.setPlaceId(new Long((Integer) row.get("place_id")));
+                placeSchedule.setUploadedBy(new Long((Integer) row.get("uploaded_by")));
+
+                placeSchedulesList.add(placeSchedule);
+            }
+            logger.debug("Obtaining place schedules to be added or deleted");
+            return Optional.of(placeSchedulesList.toArray(new PlaceSchedule[placeSchedulesList.size()]));
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+        return Optional.empty();
+    }
+
     public Optional<PlaceSchedule> insert(PlaceSchedule placeSchedule) {
         String newUuid = UUID.randomUUID().toString();
         String sql = "INSERT INTO place_schedule (uuid, day, open_time, close_time, status, created_at, " +

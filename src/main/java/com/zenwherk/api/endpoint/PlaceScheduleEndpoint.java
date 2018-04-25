@@ -2,6 +2,8 @@ package com.zenwherk.api.endpoint;
 
 import com.zenwherk.api.domain.PlaceSchedule;
 import com.zenwherk.api.domain.User;
+import com.zenwherk.api.pojo.ListResponse;
+import com.zenwherk.api.pojo.ListResult;
 import com.zenwherk.api.pojo.Message;
 import com.zenwherk.api.pojo.Result;
 import com.zenwherk.api.service.PlaceScheduleService;
@@ -101,6 +103,26 @@ public class PlaceScheduleEndpoint {
             }  else {
                 response = Response.status(placeScheduleResult.getErrorCode()).entity(placeScheduleResult.getMessage()).build();
             }
+        }
+        return response;
+    }
+
+    @GET
+    @Path("/place_schedule")
+    public Response searchToBeApprovedOrDeleted(@QueryParam("q") String query) {
+        ListResult<PlaceSchedule> result;
+        if(query != null && query.trim().equals("changes")) {
+            result = placeScheduleService.getSchedulesToBeAddedOrEliminated();
+        } else {
+            result = new ListResult<>();
+            result.setErrorCode(400);
+            result.setMessage(new Message("Query inválido"));
+        }
+        Response response;
+        if(result.getData().isPresent()) {
+            response = Response.ok(new ListResponse<>(result.getData().get())).build();
+        } else {
+            response = Response.status(result.getErrorCode()).entity(result.getMessage()).build();
         }
         return response;
     }
