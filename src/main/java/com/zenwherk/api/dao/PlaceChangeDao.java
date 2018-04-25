@@ -11,8 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Repository
 public class PlaceChangeDao {
@@ -51,6 +50,38 @@ public class PlaceChangeDao {
             e.printStackTrace();
             logger.error(e.getMessage());
         }
+        return Optional.empty();
+    }
+
+    public Optional<PlaceChange[]> getActiveChanges() {
+        String sql = "SELECT * FROM place_change WHERE status > 0 AND place_id IN (SELECT place.id FROM place WHERE place.status > 0)";
+
+        try {
+            LinkedList<PlaceChange> placeChangesList = new LinkedList<>();
+            List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
+
+            for(Map<String, Object> row : rows) {
+                PlaceChange placeChange = new PlaceChange();
+
+                placeChange.setId(new Long((Integer) row.get("id")));
+                placeChange.setUuid((String) row.get("uuid"));
+                placeChange.setColumnToChange((String) row.get("column_to_change"));
+                placeChange.setNewValue((String) row.get("new_value"));
+                placeChange.setStatus((Integer) row.get("status"));
+                placeChange.setCreatedAt((Date) row.get("created_at"));
+                placeChange.setUpdatedAt((Date) row.get("updated_at"));
+                placeChange.setPlaceId(new Long((Integer) row.get("place_id")));
+                placeChange.setUserId(new Long((Integer) row.get("user_id")));
+
+                placeChangesList.add(placeChange);
+            }
+            logger.debug("Obtaining place changes to be approved or discarded");
+            return Optional.of(placeChangesList.toArray(new PlaceChange[placeChangesList.size()]));
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+
         return Optional.empty();
     }
 

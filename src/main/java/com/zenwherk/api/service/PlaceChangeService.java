@@ -4,6 +4,7 @@ import com.zenwherk.api.dao.PlaceChangeDao;
 import com.zenwherk.api.domain.Place;
 import com.zenwherk.api.domain.PlaceChange;
 import com.zenwherk.api.domain.User;
+import com.zenwherk.api.pojo.ListResult;
 import com.zenwherk.api.pojo.Message;
 import com.zenwherk.api.pojo.MessageResult;
 import com.zenwherk.api.pojo.Result;
@@ -137,6 +138,39 @@ public class PlaceChangeService {
         } else {
             result.setMessage(new Message("Cambio descartado correctamente"));
         }
+        return result;
+    }
+
+    public ListResult<PlaceChange> getActiveChanges() {
+        ListResult<PlaceChange> result = new ListResult<>();
+
+        Optional<PlaceChange[]> activeChanges = placeChangeDao.getActiveChanges();
+        if(activeChanges.isPresent()) {
+            PlaceChange[] changes = new PlaceChange[activeChanges.get().length];
+            for(int i = 0; i < changes.length; i++) {
+                changes[i] = activeChanges.get()[i];
+                changes[i].setId(null);
+                changes[i].setUserId(null);
+
+                // Get the place to which this place change belongs to
+                Result<Place> placeResult = placeService.getPlaceById(changes[i].getPlaceId(), false, false);
+                if(placeResult.getData().isPresent()) {
+                    changes[i].setPlace(placeResult.getData().get());
+                    changes[i].getPlace().setUser(null);
+                    changes[i].getPlace().setFeatures(null);
+                    changes[i].getPlace().setSchedules(null);
+                    changes[i].getPlace().setRating(null);
+                }
+
+                changes[i].setPlaceId(null);
+            }
+            activeChanges = Optional.of(changes);
+        } else {
+            result.setErrorCode(500);
+            result.setMessage(new Message("Error del servidor"));
+        }
+
+        result.setData(activeChanges);
         return result;
     }
 
