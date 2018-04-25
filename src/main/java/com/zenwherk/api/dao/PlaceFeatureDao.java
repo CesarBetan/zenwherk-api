@@ -78,6 +78,35 @@ public class PlaceFeatureDao {
         return Optional.empty();
     }
 
+    public Optional<PlaceFeature[]> getFeaturesToBeAddedOrDeleted() {
+        String sql = "SELECT * FROM place_feature WHERE status IN (2,3) AND place_id IN (SELECT place.id FROM place WHERE place.status > 0)";
+        try {
+            LinkedList<PlaceFeature> placeFeaturesList = new LinkedList<>();
+            List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
+            for(Map<String, Object> row : rows) {
+                PlaceFeature placeFeature = new PlaceFeature();
+
+                placeFeature.setId(new Long((Integer) row.get("id")));
+                placeFeature.setUuid((String) row.get("uuid"));
+                placeFeature.setFeatureDescription((String) row.get("feature_description"));
+                placeFeature.setFeatureEnum((Integer) row.get("feature_enum"));
+                placeFeature.setStatus((Integer) row.get("status"));
+                placeFeature.setCreatedAt((Date) row.get("created_at"));
+                placeFeature.setUpdatedAt((Date) row.get("updated_at"));
+                placeFeature.setUploadedBy(new Long((Integer) row.get("uploaded_by")));
+                placeFeature.setPlaceId(new Long((Integer) row.get("place_id")));
+
+                placeFeaturesList.add(placeFeature);
+            }
+            logger.debug("Obtaining features to be added or deleted");
+            return Optional.of(placeFeaturesList.toArray(new PlaceFeature[placeFeaturesList.size()]));
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+        return Optional.empty();
+    }
+
     public Optional<PlaceFeature> insert(PlaceFeature placeFeature) {
         String newUuid = UUID.randomUUID().toString();
         String sql = "INSERT INTO place_feature (uuid, feature_description, feature_enum, status, " +

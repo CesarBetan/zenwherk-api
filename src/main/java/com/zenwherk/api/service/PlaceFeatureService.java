@@ -273,6 +273,40 @@ public class PlaceFeatureService {
         return result;
     }
 
+    public ListResult<PlaceFeature> getFeaturesToBeAddedOrEliminated () {
+        ListResult<PlaceFeature> result = new ListResult<>();
+        Optional<PlaceFeature[]> queriedPlaceFeatures = placeFeatureDao.getFeaturesToBeAddedOrDeleted();
+        if(queriedPlaceFeatures.isPresent()) {
+            PlaceFeature[] features = new PlaceFeature[queriedPlaceFeatures.get().length];
+            for (int i = 0; i < features.length; i++) {
+                features[i] = queriedPlaceFeatures.get()[i];
+                features[i].setId(null);
+                features[i].setUploadedBy(null);
+
+                // Get the place to which this feature belongs to
+                Result<Place> placeResult = placeService.getPlaceById(features[i].getPlaceId(), true, true);
+                if(placeResult.getData().isPresent()) {
+                    placeResult.getData().get().setId(null);
+                    placeResult.getData().get().setFeatures(null);
+                    placeResult.getData().get().setRating(null);
+                    placeResult.getData().get().setUser(null);
+                    placeResult.getData().get().setFeatures(null);
+                    placeResult.getData().get().setSchedules(null);
+                    features[i].setPlace(placeResult.getData().get());
+                }
+
+                features[i].setPlaceId(null);
+            }
+            queriedPlaceFeatures = Optional.of(features);
+        } else {
+            result.setErrorCode(500);
+            result.setMessage(new Message("Error del servidor"));
+        }
+
+        result.setData(queriedPlaceFeatures);
+        return result;
+    }
+
     private PlaceFeature cleanPlaceFeatureFields(PlaceFeature placeFeature, boolean keepId) {
         if(!keepId) {
             placeFeature.setId(null);
