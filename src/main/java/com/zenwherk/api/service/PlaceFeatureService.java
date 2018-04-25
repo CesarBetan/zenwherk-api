@@ -29,12 +29,20 @@ public class PlaceFeatureService {
 
     private static final Logger logger = LoggerFactory.getLogger(PlaceFeatureService.class);
 
-    public Result<PlaceFeature> getPlaceFeatureById(Long id, boolean keepId) {
+    public Result<PlaceFeature> getPlaceFeatureById(Long id, boolean keepId, boolean searchPlace) {
         Result<PlaceFeature> result = new Result<>();
 
         Optional<PlaceFeature> placeFeature = placeFeatureDao.getById(id);
         if(placeFeature.isPresent()){
+            Long placeId = placeFeature.get().getPlaceId();
             placeFeature = Optional.of(cleanPlaceFeatureFields(placeFeature.get(), keepId));
+
+            if(searchPlace && placeFeature.isPresent()) {
+                Result<Place> placeResult = placeService.getPlaceById(placeId, false, false);
+                if(placeResult.getData().isPresent()) {
+                    placeFeature.get().setPlace(placeResult.getData().get());
+                }
+            }
         } else {
             result.setErrorCode(404);
             result.setMessage(new Message("El feature no existe"));

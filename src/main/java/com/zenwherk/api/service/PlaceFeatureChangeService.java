@@ -4,6 +4,7 @@ import com.zenwherk.api.dao.PlaceFeatureChangeDao;
 import com.zenwherk.api.domain.PlaceFeature;
 import com.zenwherk.api.domain.PlaceFeatureChange;
 import com.zenwherk.api.domain.User;
+import com.zenwherk.api.pojo.ListResult;
 import com.zenwherk.api.pojo.Message;
 import com.zenwherk.api.pojo.MessageResult;
 import com.zenwherk.api.pojo.Result;
@@ -78,7 +79,7 @@ public class PlaceFeatureChangeService {
         }
 
         if(approve) {
-            Result<PlaceFeature> placeFeatureResult = placeFeatureService.getPlaceFeatureById(placeFeatureChange.get().getPlaceFeatureId(), true);
+            Result<PlaceFeature> placeFeatureResult = placeFeatureService.getPlaceFeatureById(placeFeatureChange.get().getPlaceFeatureId(), true, false);
             if(!placeFeatureResult.getData().isPresent()) {
                 result.setErrorCode(404);
                 result.setMessage(new Message("El feature no es válido"));
@@ -110,6 +111,41 @@ public class PlaceFeatureChangeService {
         } else {
             result.setMessage(new Message("Cambio descartado correctamente"));
         }
+        return result;
+    }
+
+    public ListResult<PlaceFeatureChange> getActiveChanges() {
+        ListResult<PlaceFeatureChange> result = new ListResult<>();
+
+        Optional<PlaceFeatureChange[]> activeChanges = placeFeatureChangeDao.getActiveChanges();
+        if(activeChanges.isPresent()) {
+            PlaceFeatureChange[] changes = new PlaceFeatureChange[activeChanges.get().length];
+            for(int i = 0; i < changes.length; i++) {
+                changes[i] = activeChanges.get()[i];
+                changes[i].setId(null);
+                changes[i].setUserId(null);
+
+                // Get the place feature to which this feature belongs to
+                Result<PlaceFeature> placeFeatureResult = placeFeatureService.getPlaceFeatureById(changes[i].getPlaceFeatureId(), false, true);
+                if(placeFeatureResult.getData().isPresent()) {
+                    changes[i].setPlaceFeature(placeFeatureResult.getData().get());
+                    if(changes[i].getPlaceFeature().getPlace() != null) {
+                        changes[i].getPlaceFeature().getPlace().setUser(null);
+                        changes[i].getPlaceFeature().getPlace().setFeatures(null);
+                        changes[i].getPlaceFeature().getPlace().setSchedules(null);
+                        changes[i].getPlaceFeature().getPlace().setRating(null);
+                    }
+                }
+
+                changes[i].setPlaceFeatureId(null);
+            }
+            activeChanges = Optional.of(changes);
+        } else {
+            result.setErrorCode(500);
+            result.setMessage(new Message("Error del servidor"));
+        }
+
+        result.setData(activeChanges);
         return result;
     }
 

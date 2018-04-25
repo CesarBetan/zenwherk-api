@@ -1,9 +1,7 @@
 package com.zenwherk.api.endpoint;
 
 import com.zenwherk.api.domain.PlaceFeatureChange;
-import com.zenwherk.api.pojo.Message;
-import com.zenwherk.api.pojo.MessageResult;
-import com.zenwherk.api.pojo.Result;
+import com.zenwherk.api.pojo.*;
 import com.zenwherk.api.service.PlaceFeatureChangeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -59,6 +57,19 @@ public class PlaceFeatureChangeEndpoint {
             response = Response.status(result.getErrorCode()).entity(result.getMessage()).build();
         } else {
             response = Response.ok(result.getMessage()).build();
+        }
+        return response;
+    }
+
+    @GET
+    @Path("/place_feature_change")
+    public Response getActiveChanges() {
+        ListResult<PlaceFeatureChange> result = placeFeatureChangeService.getActiveChanges();
+        Response response;
+        if(result.getData().isPresent()) {
+            response = Response.ok(new ListResponse<>(result.getData().get())).build();
+        } else {
+            response = Response.status(result.getErrorCode()).entity(result.getMessage()).build();
         }
         return response;
     }
