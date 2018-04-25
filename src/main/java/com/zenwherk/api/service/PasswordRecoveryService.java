@@ -8,6 +8,8 @@ import com.zenwherk.api.pojo.MessageResult;
 import com.zenwherk.api.pojo.Result;
 import com.zenwherk.api.util.MathUtilities;
 import com.zenwherk.api.validation.PasswordRecoveryTokenValidation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,11 @@ public class PasswordRecoveryService {
 
     @Autowired
     private PasswordRecoveryTokenDao passwordRecoveryTokenDao;
+
+    @Autowired
+    private MailingService mailingService;
+
+    private static final Logger logger = LoggerFactory.getLogger(PasswordRecoveryService.class);
 
     public MessageResult generatePasswordRecoveryToken(String uuid) {
         MessageResult result = new MessageResult();
@@ -43,6 +50,17 @@ public class PasswordRecoveryService {
         boolean deletedPastTokens = passwordRecoveryTokenDao.deletePasswordRecoveryTokenByUserUserId(userResult.getData().get().getId());
         Optional<PasswordRecoveryToken> insertedPasswordRecoveryToken = passwordRecoveryTokenDao.insert(recoveryToken);
         if(!deletedPastTokens || !insertedPasswordRecoveryToken.isPresent()) {
+            result.setErrorCode(500);
+            result.setMessage(new Message("Error de servidor"));
+            return result;
+        }
+
+        try {
+            User user = userResult.getData().get();
+            mailingService.sendSimpleMessage(user.getEmail(), "Recuperación de contraseña", String.format("Su favor de ingresar a http://localhost:8080/user/recovery?token=%s", insertedPasswordRecoveryToken.get().getToken()) );
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
             result.setErrorCode(500);
             result.setMessage(new Message("Error de servidor"));
             return result;
