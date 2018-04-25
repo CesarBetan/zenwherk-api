@@ -5,6 +5,7 @@ import com.zenwherk.api.domain.Favorite;
 import com.zenwherk.api.domain.Place;
 import com.zenwherk.api.domain.User;
 import com.zenwherk.api.pojo.Message;
+import com.zenwherk.api.pojo.MessageResult;
 import com.zenwherk.api.pojo.Result;
 import com.zenwherk.api.validation.FavoriteValidation;
 import org.slf4j.Logger;
@@ -36,7 +37,7 @@ public class FavoriteService {
 
         favorite.setStatus(1);
 
-        // Retrieve the user that uploaded the feature
+        // Retrieve the user that uploaded the favorite
         Result<User> userResult = userService.getUserByUuid(favorite.getUser().getUuid(), true, true);
         if(!userResult.getData().isPresent()) {
             result.setErrorCode(404);
@@ -44,7 +45,7 @@ public class FavoriteService {
             return result;
         }
 
-        // Retrieve the place to which this feature belongs to
+        // Retrieve the place to which this favorite belongs to
         Result<Place> placeResult = placeService.getPlaceByUuid(favorite.getPlace().getUuid(), true, true);
         if(!placeResult.getData().isPresent()) {
             result.setErrorCode(404);
@@ -69,6 +70,40 @@ public class FavoriteService {
             } else {
                 result.setData(Optional.empty());
             }
+        }
+
+        return result;
+    }
+
+    public MessageResult deleteByUserUuidAndPlaceUuid(Favorite favorite) {
+        MessageResult result = FavoriteValidation.validateInsert(favorite);
+        if(result.getErrorCode() != null && result.getErrorCode() > 0){
+            return result;
+        }
+
+        // Retrieve the user that uploaded the favorite
+        Result<User> userResult = userService.getUserByUuid(favorite.getUser().getUuid(), true, true);
+        if(!userResult.getData().isPresent()) {
+            result.setErrorCode(404);
+            result.setMessage(new Message("El usuario de este favorito no es válido"));
+            return result;
+        }
+
+        // Retrieve the place to which this favorite belongs to
+        Result<Place> placeResult = placeService.getPlaceByUuid(favorite.getPlace().getUuid(), true, true);
+        if(!placeResult.getData().isPresent()) {
+            result.setErrorCode(404);
+            result.setMessage(new Message("El lugar de este favorito no es válido"));
+            return result;
+        }
+
+        boolean deleted = favoriteDao.deleteByUserIdAndPlaceId(userResult.getData().get().getId(), placeResult.getData().get().getId());
+
+        if(deleted) {
+            result.setMessage(new Message("Favorito borrado correctamente"));
+        } else {
+            result.setErrorCode(500);
+            result.setMessage(new Message("Error de servidor"));
         }
 
         return result;
