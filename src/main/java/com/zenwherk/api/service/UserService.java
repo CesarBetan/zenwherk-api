@@ -1,6 +1,7 @@
 package com.zenwherk.api.service;
 
 import com.zenwherk.api.dao.UserDao;
+import com.zenwherk.api.domain.Place;
 import com.zenwherk.api.domain.User;
 import com.zenwherk.api.pojo.ListResult;
 import com.zenwherk.api.pojo.Message;
@@ -19,6 +20,9 @@ public class UserService {
 
     @Autowired
     private UserDao userDao;
+
+    @Autowired
+    private FavoriteService favoriteService;
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
@@ -67,7 +71,15 @@ public class UserService {
 
         Optional<User> user = userDao.getByUuid(uuid);
         if(user.isPresent()){
+            Long userId = user.get().getId();
             user = Optional.of(cleanUserFields(user.get(), keepId, keepRole));
+
+            if(user.isPresent()) {
+                ListResult<Place> favoritePlaces = favoriteService.getFavoritePlacesByUserId(userId);
+                if(favoritePlaces.getData().isPresent()) {
+                    user.get().setFavorites(favoritePlaces.getData().get());
+                }
+            }
         } else {
             result.setErrorCode(404);
             result.setMessage(new Message("El usuario no existe"));

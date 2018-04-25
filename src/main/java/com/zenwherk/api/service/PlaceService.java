@@ -44,9 +44,26 @@ public class PlaceService {
             Long userId = place.get().getUploadedBy();
             place = Optional.of(cleanPlaceFields(place.get(), keepId, keepStatus));
 
-            Result<User> uploadedBy = userService.getUserById(userId, false, false);
-            if(uploadedBy.getData().isPresent() && place.isPresent()) {
-                place.get().setUser(uploadedBy.getData().get());
+            if(place.isPresent()) {
+                // Get the user that uploaded the place
+                Result<User> uploadedBy = userService.getUserById(userId, false, false);
+                if(uploadedBy.getData().isPresent()) {
+                    place.get().setUser(uploadedBy.getData().get());
+                }
+
+                // Get the features of this place
+                place.get().setFeatures(new PlaceFeature[0]);
+                ListResult<PlaceFeature> placeFeatures = placeFeatureService.getApprovedFeaturesByPlaceId(place.get().getId(), false);
+                if(placeFeatures.getData().isPresent()) {
+                    place.get().setFeatures(placeFeatures.getData().get());
+                }
+
+                // Get the schedules of this place
+                place.get().setSchedules(new PlaceSchedule[0]);
+                ListResult<PlaceSchedule> placeSchedules = placeScheduleService.getApprovedSchedulesByPlaceId(place.get().getId(), false);
+                if(placeSchedules.getData().isPresent()) {
+                    place.get().setSchedules(placeSchedules.getData().get());
+                }
             }
         } else {
             result.setErrorCode(404);

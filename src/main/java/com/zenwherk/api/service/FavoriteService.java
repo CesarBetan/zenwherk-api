@@ -4,6 +4,7 @@ import com.zenwherk.api.dao.FavoriteDao;
 import com.zenwherk.api.domain.Favorite;
 import com.zenwherk.api.domain.Place;
 import com.zenwherk.api.domain.User;
+import com.zenwherk.api.pojo.ListResult;
 import com.zenwherk.api.pojo.Message;
 import com.zenwherk.api.pojo.MessageResult;
 import com.zenwherk.api.pojo.Result;
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedList;
 import java.util.Optional;
 
 @Service
@@ -28,6 +30,28 @@ public class FavoriteService {
     private PlaceService placeService;
 
     private static final Logger logger = LoggerFactory.getLogger(FavoriteService.class);
+
+    public ListResult<Place> getFavoritePlacesByUserId(Long userId) {
+        ListResult<Place> result = new ListResult<>();
+
+        Optional<Favorite[]> favorites = favoriteDao.getFavoritesByUserId(userId);
+        if(!favorites.isPresent()) {
+            result.setErrorCode(500);
+            result.setMessage(new Message("Error de servidor"));
+            return result;
+        }
+
+        LinkedList<Place> places = new LinkedList<>();
+        for(Favorite favorite : favorites.get()) {
+            Result<Place> placeResult = placeService.getPlaceById(favorite.getPlaceId(), true, false);
+            if(placeResult.getData().isPresent()) {
+                places.add(placeResult.getData().get());
+            }
+        }
+
+        result.setData(Optional.of(places.toArray(new Place[places.size()])));
+        return result;
+    }
 
     public Result<Favorite> insert(Favorite favorite) {
         Result<Favorite> result = FavoriteValidation.validateInsert(favorite);

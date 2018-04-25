@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.util.Arrays;
 import java.util.Date;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -26,6 +27,8 @@ public class User extends Entity {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date updatedAt;
 
+    // Favorite places, not a database property
+    private Place[] favorites;
 
     @Override
     public Long getId() {
@@ -119,6 +122,14 @@ public class User extends Entity {
         this.updatedAt = updatedAt;
     }
 
+    public Place[] getFavorites() {
+        return favorites;
+    }
+
+    public void setFavorites(Place[] favorites) {
+        this.favorites = favorites;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -133,6 +144,7 @@ public class User extends Entity {
                 ", status=" + status +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
+                ", favorites=" + Arrays.toString(favorites) +
                 '}';
     }
 }
