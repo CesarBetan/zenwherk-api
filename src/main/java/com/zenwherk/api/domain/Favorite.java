@@ -8,17 +8,15 @@ import java.util.Date;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PasswordRecoveryToken extends Entity {
+public class Favorite extends Entity {
 
     private Long id;
     private String uuid;
-    private String token;
     private Integer status;
 
     private Long userId;
+    private Long placeId;
 
-    @JsonFormat(pattern = "yyyy-MM-dd@HH:mm:ss.SSSZ")
-    private Date expirationDate;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date createdAt;
@@ -27,7 +25,8 @@ public class PasswordRecoveryToken extends Entity {
     private Date updatedAt;
 
     // Not in the domain but used for JSON purposes
-    private String password;
+    private User user;
+    private Place place;
 
     @Override
     public Long getId() {
@@ -49,14 +48,6 @@ public class PasswordRecoveryToken extends Entity {
         this.uuid = uuid;
     }
 
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
     public Integer getStatus() {
         return status;
     }
@@ -73,12 +64,12 @@ public class PasswordRecoveryToken extends Entity {
         this.userId = userId;
     }
 
-    public Date getExpirationDate() {
-        return expirationDate;
+    public Long getPlaceId() {
+        return placeId;
     }
 
-    public void setExpirationDate(Date expirationDate) {
-        this.expirationDate = expirationDate;
+    public void setPlaceId(Long placeId) {
+        this.placeId = placeId;
     }
 
     public Date getCreatedAt() {
@@ -97,25 +88,34 @@ public class PasswordRecoveryToken extends Entity {
         this.updatedAt = updatedAt;
     }
 
-    public String getPassword() {
-        return password;
+    public User getUser() {
+        return user;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Place getPlace() {
+        return place;
+    }
+
+    public void setPlace(Place place) {
+        this.place = place;
     }
 
     @Override
     public String toString() {
-        return "PasswordRecoveryToken{" +
+        return "Favorite{" +
                 "id=" + id +
                 ", uuid='" + uuid + '\'' +
-                ", token='" + token + '\'' +
                 ", status=" + status +
                 ", userId=" + userId +
-                ", expirationDate=" + expirationDate +
+                ", placeId=" + placeId +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
+                ", user=" + user +
+                ", place=" + place +
                 '}';
     }
 }
