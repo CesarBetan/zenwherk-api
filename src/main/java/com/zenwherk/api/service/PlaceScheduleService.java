@@ -29,12 +29,20 @@ public class PlaceScheduleService {
 
     private static final Logger logger = LoggerFactory.getLogger(PlaceScheduleService.class);
 
-    public Result<PlaceSchedule> getPlaceScheduleById(Long id, boolean keepId) {
+    public Result<PlaceSchedule> getPlaceScheduleById(Long id, boolean keepId, boolean searchPlace) {
         Result<PlaceSchedule> result = new Result<>();
 
         Optional<PlaceSchedule> placeSchedule = placeScheduleDao.getById(id);
         if(placeSchedule.isPresent()){
+            Long placeId = placeSchedule.get().getPlaceId();
             placeSchedule = Optional.of(cleanPlaceScheduleFields(placeSchedule.get(), keepId));
+
+            if(searchPlace && placeSchedule.isPresent()) {
+                Result<Place> placeResult = placeService.getPlaceById(placeId, false, false);
+                if(placeResult.getData().isPresent()) {
+                    placeSchedule.get().setPlace(placeResult.getData().get());
+                }
+            }
         } else {
             result.setErrorCode(404);
             result.setMessage(new Message("El horario no existe"));

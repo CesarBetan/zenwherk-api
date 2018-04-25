@@ -10,8 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Repository
 public class PlaceScheduleChangeDao {
@@ -51,6 +50,37 @@ public class PlaceScheduleChangeDao {
             e.printStackTrace();
             logger.error(e.getMessage());
         }
+        return Optional.empty();
+    }
+
+    public Optional<PlaceScheduleChange[]> getActiveChanges() {
+        String sql = "SELECT * FROM place_schedule_change WHERE status > 0 AND place_schedule_id IN (SELECT place_schedule.id FROM place_schedule WHERE place_schedule.status > 0 AND place_schedule.place_id IN (SELECT place.id FROM place WHERE place.status > 0))";
+
+        try {
+            LinkedList<PlaceScheduleChange> placeScheduleChangesList = new LinkedList<>();
+            List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
+            for(Map<String, Object> row : rows) {
+                PlaceScheduleChange placeScheduleChange = new PlaceScheduleChange();
+
+                placeScheduleChange.setId(new Long((Integer) row.get("id")));
+                placeScheduleChange.setUuid((String) row.get("uuid"));
+                placeScheduleChange.setColumnToChange((String) row.get("column_to_change"));
+                placeScheduleChange.setNewTime((Date) row.get("new_time"));
+                placeScheduleChange.setStatus((Integer) row.get("status"));
+                placeScheduleChange.setCreatedAt((Date) row.get("created_at"));
+                placeScheduleChange.setUpdatedAt((Date) row.get("updated_at"));
+                placeScheduleChange.setPlaceScheduleId(new Long((Integer) row.get("place_schedule_id")));
+                placeScheduleChange.setUserId(new Long((Integer) row.get("user_id")));
+
+                placeScheduleChangesList.add(placeScheduleChange);
+            }
+            logger.debug("Obtaining schedule changes to be approved or discarded");
+            return Optional.of(placeScheduleChangesList.toArray(new PlaceScheduleChange[placeScheduleChangesList.size()]));
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+
         return Optional.empty();
     }
 

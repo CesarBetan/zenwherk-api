@@ -4,6 +4,7 @@ import com.zenwherk.api.dao.PlaceScheduleChangeDao;
 import com.zenwherk.api.domain.PlaceSchedule;
 import com.zenwherk.api.domain.PlaceScheduleChange;
 import com.zenwherk.api.domain.User;
+import com.zenwherk.api.pojo.ListResult;
 import com.zenwherk.api.pojo.Message;
 import com.zenwherk.api.pojo.MessageResult;
 import com.zenwherk.api.pojo.Result;
@@ -78,7 +79,7 @@ public class PlaceScheduleChangeService {
         }
 
         if(approve) {
-            Result<PlaceSchedule> placeScheduleResult = placeScheduleService.getPlaceScheduleById(placeScheduleChange.get().getPlaceScheduleId(), true);
+            Result<PlaceSchedule> placeScheduleResult = placeScheduleService.getPlaceScheduleById(placeScheduleChange.get().getPlaceScheduleId(), true, false);
             if(!placeScheduleResult.getData().isPresent()) {
                 result.setErrorCode(404);
                 result.setMessage(new Message("El horario no es válido"));
@@ -118,6 +119,41 @@ public class PlaceScheduleChangeService {
         } else {
             result.setMessage(new Message("Cambio descartado correctamente"));
         }
+        return result;
+    }
+
+    public ListResult<PlaceScheduleChange> getActiveChanges() {
+        ListResult<PlaceScheduleChange> result = new ListResult<>();
+
+        Optional<PlaceScheduleChange[]> activeChanges = placeScheduleChangeDao.getActiveChanges();
+        if(activeChanges.isPresent()) {
+            PlaceScheduleChange[] changes = new PlaceScheduleChange[activeChanges.get().length];
+            for(int i = 0; i < changes.length; i++) {
+                changes[i] = activeChanges.get()[i];
+                changes[i].setId(null);
+                changes[i].setUserId(null);
+
+                // Get the place schedule to which this schedule change belongs to
+                Result<PlaceSchedule> placeScheduleResult = placeScheduleService.getPlaceScheduleById(changes[i].getPlaceScheduleId(), false, true);
+                if(placeScheduleResult.getData().isPresent()) {
+                    changes[i].setPlaceSchedule(placeScheduleResult.getData().get());
+                    if(changes[i].getPlaceSchedule().getPlace() != null) {
+                        changes[i].getPlaceSchedule().getPlace().setUser(null);
+                        changes[i].getPlaceSchedule().getPlace().setFeatures(null);
+                        changes[i].getPlaceSchedule().getPlace().setSchedules(null);
+                        changes[i].getPlaceSchedule().getPlace().setRating(null);
+                    }
+                }
+
+                changes[i].setPlaceScheduleId(null);
+            }
+            activeChanges = Optional.of(changes);
+        } else {
+            result.setErrorCode(500);
+            result.setMessage(new Message("Error del servidor"));
+        }
+
+        result.setData(activeChanges);
         return result;
     }
 
