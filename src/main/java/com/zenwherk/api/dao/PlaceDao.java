@@ -178,4 +178,17 @@ public class PlaceDao {
         return Optional.empty();
     }
 
+    public Optional<Place[]> getPlacesToBeAdded() {
+        String sql = "SELECT * FROM place WHERE status IN (2,3)";
+        try {
+            List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
+            Place[] places = toPlaceArray(rows, false);
+            logger.debug("Getting all places to be added");
+            return Optional.of(places);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+        return Optional.empty();
+    }
 }

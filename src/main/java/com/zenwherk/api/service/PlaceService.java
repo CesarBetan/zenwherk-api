@@ -355,6 +355,26 @@ public class PlaceService {
         return result;
     }
 
+    public ListResult<Place> getPlacesToBeAdded() {
+        ListResult<Place> result = new ListResult<>();
+        Optional<Place[]> queriedPlaces = placeDao.getPlacesToBeAdded();
+        if(queriedPlaces.isPresent()) {
+            Place[] places = new Place[queriedPlaces.get().length];
+            for (int i = 0; i < places.length; i++) {
+                places[i] = queriedPlaces.get()[i];
+                places[i].setId(null);
+                places[i].setUploadedBy(null);
+            }
+            queriedPlaces = Optional.of(places);
+        } else {
+            result.setErrorCode(500);
+            result.setMessage(new Message("Error del servidor"));
+        }
+
+        result.setData(queriedPlaces);
+        return result;
+    }
+
     private Place cleanPlaceFields(Place place, boolean keepId, boolean keepStatus) {
         if(!keepId) {
             place.setId(null);

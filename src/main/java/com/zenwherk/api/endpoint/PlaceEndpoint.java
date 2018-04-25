@@ -1,6 +1,8 @@
 package com.zenwherk.api.endpoint;
 
 import com.zenwherk.api.domain.Place;
+import com.zenwherk.api.pojo.ListResponse;
+import com.zenwherk.api.pojo.ListResult;
 import com.zenwherk.api.pojo.Message;
 import com.zenwherk.api.pojo.Result;
 import com.zenwherk.api.service.PlaceService;
@@ -100,6 +102,19 @@ public class PlaceEndpoint {
             }  else {
                 response = Response.status(placeResult.getErrorCode()).entity(placeResult.getMessage()).build();
             }
+        }
+        return response;
+    }
+
+    @GET
+    @Path("/place_proposals")
+    public Response searchToBeApproved() {
+        ListResult<Place> result = placeService.getPlacesToBeAdded();
+        Response response;
+        if(result.getData().isPresent()) {
+            response = Response.ok(new ListResponse<>(result.getData().get())).build();
+        } else {
+            response = Response.status(result.getErrorCode()).entity(result.getMessage()).build();
         }
         return response;
     }
