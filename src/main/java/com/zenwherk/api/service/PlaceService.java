@@ -1,6 +1,7 @@
 package com.zenwherk.api.service;
 
 import com.zenwherk.api.dao.PlaceDao;
+import com.zenwherk.api.dao.RatingDao;
 import com.zenwherk.api.domain.*;
 import com.zenwherk.api.pojo.ListResult;
 import com.zenwherk.api.pojo.Message;
@@ -21,6 +22,9 @@ public class PlaceService {
 
     @Autowired
     private PlaceDao placeDao;
+
+    @Autowired
+    private RatingDao ratingDao;
 
     @Autowired
     private UserService userService;
@@ -64,6 +68,10 @@ public class PlaceService {
                 if(placeSchedules.getData().isPresent()) {
                     place.get().setSchedules(placeSchedules.getData().get());
                 }
+
+                // Get the rating of this place
+                Double rating = ratingDao.getRatingByPlaceId(place.get().getId());
+                place.get().setRating(rating);
             }
         } else {
             result.setErrorCode(404);
@@ -108,6 +116,10 @@ public class PlaceService {
                 if(placeReviews.getData().isPresent()) {
                     place.get().setReviews(placeReviews.getData().get());
                 }
+
+                // Get the rating of this place
+                Double rating = ratingDao.getRatingByPlaceId(place.get().getId());
+                place.get().setRating(rating);
             }
         } else {
             result.setErrorCode(404);
@@ -271,6 +283,10 @@ public class PlaceService {
                     place.setSchedules(placeSchedules.getData().get());
                 }
 
+                // Get the rating of this place
+                Double rating = ratingDao.getRatingByPlaceId(placeId);
+                place.setRating(rating);
+
                 // If there was a feature filter delete this place unless it has one of the features
                 if(filterByFeatures) {
                     boolean hasAtLeastOneFeature = false;
@@ -317,9 +333,16 @@ public class PlaceService {
             LinkedList<Place> cleanedPlaces = new LinkedList<>();
             for(int i = 0; i < queriedPlaces.get().length; i++) {
                 Place place = queriedPlaces.get()[i];
+                Long placeId = place.getId();
+
                 double distanceInKm = place.getDistanceInKm();
                 place = cleanPlaceFields(place, false, false);
                 place.setDistanceInKm(distanceInKm);
+
+                // Get the rating of this place
+                Double rating = ratingDao.getRatingByPlaceId(placeId);
+                place.setRating(rating);
+
                 cleanedPlaces.add(place);
             }
             queriedPlaces = Optional.of(cleanedPlaces.toArray(new Place[cleanedPlaces.size()]));

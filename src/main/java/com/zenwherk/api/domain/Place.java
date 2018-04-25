@@ -37,6 +37,7 @@ public class Place extends Entity {
     private PlaceSchedule[] schedules;
     private Double distanceInKm;
     private Review[] reviews;
+    private Double rating;
 
     @Override
     public Long getId() {
@@ -194,6 +195,14 @@ public class Place extends Entity {
         this.reviews = reviews;
     }
 
+    public Double getRating() {
+        return rating;
+    }
+
+    public void setRating(Double rating) {
+        this.rating = rating;
+    }
+
     @Override
     public String toString() {
         return "Place{" +
@@ -216,6 +225,7 @@ public class Place extends Entity {
                 ", schedules=" + Arrays.toString(schedules) +
                 ", distanceInKm=" + distanceInKm +
                 ", reviews=" + Arrays.toString(reviews) +
+                ", rating=" + rating +
                 '}';
     }
 }
