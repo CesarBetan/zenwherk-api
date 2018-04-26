@@ -31,7 +31,7 @@ public class FileUtilities {
         bis.close();
 
         // write the image to a file
-        File outputFile = new File(String.format("./src/main/tmp/image.%s", extension));
+        File outputFile = new File(String.format("image.%s", extension));
         ImageIO.write(image, extension, outputFile);
         return outputFile;
     }
