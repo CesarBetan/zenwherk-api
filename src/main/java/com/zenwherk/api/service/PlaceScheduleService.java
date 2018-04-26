@@ -122,8 +122,6 @@ public class PlaceScheduleService {
         placeSchedule.setUploadedBy(uploadedByResult.getData().get().getId());
         placeSchedule.setPlaceId(placeResult.getData().get().getId());
 
-        // TODO: status and day logic
-
         // Day logic, there should be unique day's per place id, if not, it should be a put request, not
         // an insert. The following retrieves the schedules for a place id with status 1 and 3 since they
         // are already approved

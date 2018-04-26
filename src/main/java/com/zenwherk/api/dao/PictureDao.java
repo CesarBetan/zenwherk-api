@@ -22,7 +22,7 @@ public class PictureDao {
     private static final Logger logger = LoggerFactory.getLogger(PictureDao.class);
 
     public Optional<Picture> getByUuid(String uuid) {
-        String sql = "SELECT * FROM picture WHERE uuid = ? AND status = 1";
+        String sql = "SELECT * FROM picture WHERE uuid = ? AND status > 0";
         try {
             BeanPropertyRowMapper<Picture> rowMapper = new BeanPropertyRowMapper<>(Picture.class);
             Picture picture = jdbcTemplate.queryForObject(sql, rowMapper, uuid);
@@ -36,16 +36,15 @@ public class PictureDao {
     }
 
     public Optional<Picture> insert(Picture picture) {
-        String newUuid = UUID.randomUUID().toString();
-        String sql = "INSERT INTO picture (uuid, description, url, status, created_at, " +
+        String sql = "INSERT INTO picture (uuid, description, url, extension, status, created_at, " +
                 "updated_at, place_id, uploaded_by) " +
-                "VALUE (?,?,?,?,?,?,?,?)";
+                "VALUE (?,?,?,?,?,?,?,?,?)";
         try {
-            jdbcTemplate.update(sql, newUuid, picture.getDescription(), picture.getUrl(),
+            jdbcTemplate.update(sql, picture.getUuid(), picture.getDescription(), picture.getUrl(), picture.getExtension(),
                     picture.getStatus(), Timestamp.from(Instant.now()), Timestamp.from(Instant.now()),
                     picture.getPlaceId(), picture.getUploadedBy());
             logger.debug(String.format("Creating picture: %s", picture.getUrl()));
-            return getByUuid(newUuid);
+            return getByUuid(picture.getUuid());
         } catch (Exception e) {
             e.printStackTrace();
             logger.error(e.getMessage());

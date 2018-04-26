@@ -16,14 +16,15 @@ public class PictureValidation {
             result.setErrorCode(400);
             message += "El cuerpo del post no puede ser nulo. ";
         } else {
-            if(picture.getDescription() == null || picture.getDescription().trim().length() < 1) {
+
+            if(picture.getBase64() == null || picture.getBase64().trim().length() < 30) {
                 result.setErrorCode(400);
-                message += "La descripción no debe estar vacía. ";
+                message += "La imagen no es válida. ";
             }
 
-            if(picture.getUrl() == null || picture.getUrl().trim().length() < 1) {
+            if(picture.getExtension() == null || !checkValidExtension(picture.getExtension())) {
                 result.setErrorCode(400);
-                message += "La descripción no debe estar vacía. ";
+                message += "La extensión de la imagen no es válida. ";
             }
 
             if(picture.getPlace() == null || picture.getPlace().getUuid() == null || picture.getPlace().getUuid().trim().length() < 1) {
@@ -39,5 +40,16 @@ public class PictureValidation {
 
         result.setMessage(new Message(message));
         return result;
+    }
+
+    private static boolean checkValidExtension(String extension) {
+        switch (extension) {
+            case "jpeg":
+            case "jpg":
+            case "png":
+                return true;
+        }
+
+        return false;
     }
 }

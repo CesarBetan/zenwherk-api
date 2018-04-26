@@ -14,6 +14,7 @@ public class Picture extends Entity {
     private String uuid;
     private String description;
     private String url;
+    private String extension;
     private Integer status;
 
     private Long placeId;
@@ -28,6 +29,7 @@ public class Picture extends Entity {
     // Other attributes used for relations, not database attributes
     private Place place;
     private User user;
+    private String base64;
 
     @Override
     public Long getId() {
@@ -121,6 +123,22 @@ public class Picture extends Entity {
         this.user = user;
     }
 
+    public String getExtension() {
+        return extension;
+    }
+
+    public void setExtension(String extension) {
+        this.extension = extension;
+    }
+
+    public String getBase64() {
+        return base64;
+    }
+
+    public void setBase64(String base64) {
+        this.base64 = base64;
+    }
+
     @Override
     public String toString() {
         return "Picture{" +
@@ -128,11 +146,15 @@ public class Picture extends Entity {
                 ", uuid='" + uuid + '\'' +
                 ", description='" + description + '\'' +
                 ", url='" + url + '\'' +
+                ", extension='" + extension + '\'' +
                 ", status=" + status +
                 ", placeId=" + placeId +
                 ", uploadedBy=" + uploadedBy +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
+                ", place=" + place +
+                ", user=" + user +
+                ", base64='" + base64 + '\'' +
                 '}';
     }
 }
