@@ -51,12 +51,13 @@ public class MailingService {
                 Unirest.post("https://api.mailgun.net/v3/"
                         + DOMAIN_NAME
                         + "/messages" +
-                        "?from=DavidZarate" +
+                        "?from=davidzaratetrujillo@gmail.com" +
                         "&to=" + toMail +
                         "&subject=" + subject+
                         "&text=" + message)
                         .basicAuth("api", API_KEY)
                         .asJson();
+        System.out.println(request.getBody().toString());
 
         return request.getBody();
     }

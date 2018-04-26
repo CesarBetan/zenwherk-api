@@ -57,7 +57,7 @@ public class PasswordRecoveryService {
 
         try {
             User user = userResult.getData().get();
-            mailingService.sendSimpleMessage(user.getEmail(), "Recuperación de contraseña", String.format("Su favor de ingresar a http://localhost:8080/user/recovery?token=%s", insertedPasswordRecoveryToken.get().getToken()) );
+            mailingService.sendSimpleMessage(user.getEmail(), "Recuperación de contraseña", String.format("Para cambiar su contraseña favor de ingresar a http://localhost:8080/user/recovery?token=%s", insertedPasswordRecoveryToken.get().getToken()) );
         } catch (Exception e) {
             e.printStackTrace();
             logger.error(e.getMessage());
