@@ -20,8 +20,6 @@ public class FileUtilities {
             imageString = strBuilder.substring(dataIndex + 1);
         }
 
-        System.out.println(sourceData);
-
         // create a buffered image
         BufferedImage image = null;
         byte[] imageByte;
@@ -36,14 +34,5 @@ public class FileUtilities {
         File outputFile = new File(String.format("./src/main/tmp/image.%s", extension));
         ImageIO.write(image, extension, outputFile);
         return outputFile;
-    }
-
-    private static StringBuilder removeString(StringBuilder builder, char c) {
-        int index = builder.indexOf(String.valueOf(c));
-        if(index < 0) {
-            return builder;
-        } else {
-            return removeString(builder.deleteCharAt(index), c);
-        }
     }
 }
