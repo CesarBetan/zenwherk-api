@@ -24,7 +24,7 @@ public class PictureValidation {
 
             if(picture.getExtension() == null || !checkValidExtension(picture.getExtension())) {
                 result.setErrorCode(400);
-                message += "La extensión de la imagen no es válida. ";
+                message += "La extensión de la imagen no es válida (Solo se aceptan JPEG y JPG. ";
             }
 
             if(picture.getPlace() == null || picture.getPlace().getUuid() == null || picture.getPlace().getUuid().trim().length() < 1) {
@@ -46,7 +46,6 @@ public class PictureValidation {
         switch (extension) {
             case "jpeg":
             case "jpg":
-            case "png":
                 return true;
         }
 
