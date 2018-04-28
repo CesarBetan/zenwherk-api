@@ -51,4 +51,18 @@ public class PictureDao {
         }
         return Optional.empty();
     }
+
+    public Optional<Picture> update(Picture picture) {
+        String sql = "UPDATE picture SET " +
+                "status=?, updated_at=? WHERE uuid=?";
+        try {
+            jdbcTemplate.update(sql, picture.getStatus(), Timestamp.from(Instant.now()), picture.getUuid());
+            logger.debug(String.format("Updating picture: %s", picture.getUuid()));
+            return getByUuid(picture.getUuid());
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+        return Optional.empty();
+    }
 }

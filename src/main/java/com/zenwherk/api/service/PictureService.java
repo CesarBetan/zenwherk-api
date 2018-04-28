@@ -5,6 +5,7 @@ import com.zenwherk.api.domain.Picture;
 import com.zenwherk.api.domain.Place;
 import com.zenwherk.api.domain.User;
 import com.zenwherk.api.pojo.Message;
+import com.zenwherk.api.pojo.MessageResult;
 import com.zenwherk.api.pojo.Result;
 import com.zenwherk.api.util.FileUtilities;
 import com.zenwherk.api.validation.PictureValidation;
@@ -110,6 +111,30 @@ public class PictureService {
         }
 
         result.setData(insertedPicture);
+        return result;
+    }
+
+    public MessageResult delete (String uuid) {
+        MessageResult result = new MessageResult();
+        if(uuid == null || uuid.trim().length() < 1) {
+            result.setErrorCode(400);
+            result.setMessage(new Message("Imagen inválida. "));
+            return result;
+        }
+
+        Result<Picture> foundPicture = getPictureByUuid(uuid, true);
+        if(!foundPicture.getData().isPresent()) {
+            result.setErrorCode(404);
+            result.setMessage(new Message("Imagen no encontrada. "));
+            return result;
+        }
+
+        Picture picture = foundPicture.getData().get();
+        picture.setStatus(0);
+
+        pictureDao.update(picture);
+
+        result.setMessage(new Message("Imagen borrada de manera exitosa. "));
         return result;
     }
 

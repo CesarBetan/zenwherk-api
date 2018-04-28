@@ -2,14 +2,13 @@ package com.zenwherk.api.endpoint;
 
 import com.zenwherk.api.domain.Picture;
 import com.zenwherk.api.pojo.Message;
+import com.zenwherk.api.pojo.MessageResult;
 import com.zenwherk.api.pojo.Result;
 import com.zenwherk.api.service.PictureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -38,4 +37,16 @@ public class PictureEndpoint {
         return response;
     }
 
+    @DELETE
+    @Path("/picture/{uuid}")
+    public Response delete(@PathParam("uuid") String uuid) {
+        MessageResult result = pictureService.delete(uuid);
+        Response response;
+        if(result.getErrorCode() != null && result.getErrorCode() > 0) {
+            response = Response.status(result.getErrorCode()).entity(result.getMessage()).build();
+        } else {
+            response = Response.ok(result.getMessage()).build();
+        }
+        return response;
+    }
 }
