@@ -300,6 +300,7 @@ public class PlaceFeatureService {
                     placeResult.getData().get().setUser(null);
                     placeResult.getData().get().setFeatures(null);
                     placeResult.getData().get().setSchedules(null);
+                    placeResult.getData().get().setPictures(null);
                     features[i].setPlace(placeResult.getData().get());
                 }
 

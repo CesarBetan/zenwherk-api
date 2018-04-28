@@ -36,6 +36,9 @@ public class PlaceService {
     private PlaceScheduleService placeScheduleService;
 
     @Autowired
+    private PictureService pictureService;
+
+    @Autowired
     private ReviewService reviewService;
 
     private static final Logger logger = LoggerFactory.getLogger(PlaceService.class);
@@ -72,6 +75,13 @@ public class PlaceService {
                 // Get the rating of this place
                 Double rating = ratingDao.getRatingByPlaceId(place.get().getId());
                 place.get().setRating(rating);
+
+                // Get the pictures of this place
+                place.get().setPictures(new Picture[0]);
+                ListResult<Picture> placePictures = pictureService.getPicturesByPlaceId(place.get().getId(), false);
+                if(placePictures.getData().isPresent()) {
+                    place.get().setPictures(placePictures.getData().get());
+                }
             }
         } else {
             result.setErrorCode(404);
@@ -120,6 +130,13 @@ public class PlaceService {
                 // Get the rating of this place
                 Double rating = ratingDao.getRatingByPlaceId(place.get().getId());
                 place.get().setRating(rating);
+
+                // Get the pictures of this place
+                place.get().setPictures(new Picture[0]);
+                ListResult<Picture> placePictures = pictureService.getPicturesByPlaceId(place.get().getId(), false);
+                if(placePictures.getData().isPresent()) {
+                    place.get().setPictures(placePictures.getData().get());
+                }
             }
         } else {
             result.setErrorCode(404);
@@ -287,6 +304,13 @@ public class PlaceService {
                 Double rating = ratingDao.getRatingByPlaceId(placeId);
                 place.setRating(rating);
 
+                // Get the pictures of this place
+                place.setPictures(new Picture[0]);
+                ListResult<Picture> placePictures = pictureService.getPicturesByPlaceId(placeId, false);
+                if(placePictures.getData().isPresent()) {
+                    place.setPictures(placePictures.getData().get());
+                }
+
                 // If there was a feature filter delete this place unless it has one of the features
                 if(filterByFeatures) {
                     boolean hasAtLeastOneFeature = false;
@@ -342,6 +366,13 @@ public class PlaceService {
                 // Get the rating of this place
                 Double rating = ratingDao.getRatingByPlaceId(placeId);
                 place.setRating(rating);
+
+                // Get the pictures of this place
+                place.setPictures(new Picture[0]);
+                ListResult<Picture> placePictures = pictureService.getPicturesByPlaceId(placeId, false);
+                if(placePictures.getData().isPresent()) {
+                    place.setPictures(placePictures.getData().get());
+                }
 
                 cleanedPlaces.add(place);
             }

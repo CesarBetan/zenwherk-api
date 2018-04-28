@@ -10,8 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Repository
 public class PictureDao {
@@ -32,6 +31,38 @@ public class PictureDao {
             e.printStackTrace();
             logger.error(e.getMessage());
         }
+        return Optional.empty();
+    }
+
+    public Optional<Picture[]> getPicturesByPlaceId(Long placeId) {
+        String sql = "SELECT * FROM picture WHERE status > 0 AND place_id=?";
+        try {
+            LinkedList<Picture> placePictureList = new LinkedList<>();
+            List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, placeId);
+
+            for(Map<String, Object> row : rows) {
+                Picture picture = new Picture();
+
+                picture.setId(new Long((Integer) row.get("id")));
+                picture.setUuid((String) row.get("uuid"));
+                picture.setDescription((String) row.get("description"));
+                picture.setUrl((String) row.get("url"));
+                picture.setExtension((String) row.get("extension"));
+                picture.setStatus((Integer) row.get("status"));
+                picture.setCreatedAt((Date) row.get("created_at"));
+                picture.setUpdatedAt((Date) row.get("updated_at"));
+                picture.setPlaceId(new Long((Integer) row.get("place_id")));
+                picture.setUploadedBy(new Long((Integer) row.get("uploaded_by")));
+
+                placePictureList.add(picture);
+            }
+            logger.debug("Obtaining active place pictures by place id");
+            return Optional.of(placePictureList.toArray(new Picture[placePictureList.size()]));
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+
         return Optional.empty();
     }
 

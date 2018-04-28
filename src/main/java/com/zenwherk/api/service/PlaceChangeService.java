@@ -160,6 +160,7 @@ public class PlaceChangeService {
                     changes[i].getPlace().setFeatures(null);
                     changes[i].getPlace().setSchedules(null);
                     changes[i].getPlace().setRating(null);
+                    changes[i].getPlace().setPictures(null);
                 }
 
                 changes[i].setPlaceId(null);

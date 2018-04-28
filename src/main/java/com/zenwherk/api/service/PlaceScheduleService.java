@@ -326,6 +326,7 @@ public class PlaceScheduleService {
                     placeResult.getData().get().setUser(null);
                     placeResult.getData().get().setFeatures(null);
                     placeResult.getData().get().setSchedules(null);
+                    placeResult.getData().get().setPictures(null);
                     schedules[i].setPlace(placeResult.getData().get());
                 }
 

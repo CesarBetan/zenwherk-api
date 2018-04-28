@@ -4,6 +4,7 @@ import com.zenwherk.api.dao.PictureDao;
 import com.zenwherk.api.domain.Picture;
 import com.zenwherk.api.domain.Place;
 import com.zenwherk.api.domain.User;
+import com.zenwherk.api.pojo.ListResult;
 import com.zenwherk.api.pojo.Message;
 import com.zenwherk.api.pojo.MessageResult;
 import com.zenwherk.api.pojo.Result;
@@ -39,13 +40,31 @@ public class PictureService {
         Result<Picture> result = new Result<>();
 
         Optional<Picture> picture = pictureDao.getByUuid(uuid);
-        if(picture.isPresent()){
+        if(picture.isPresent()) {
             picture = Optional.of(cleanPictureFields(picture.get(), keepId));
         } else {
             result.setErrorCode(404);
             result.setMessage(new Message("La imagen no existe"));
         }
         result.setData(picture);
+        return result;
+    }
+
+    public ListResult<Picture> getPicturesByPlaceId(Long placeId, boolean keepId) {
+        ListResult<Picture> result = new ListResult<>();
+        Optional<Picture[]> queriedPlacePictures = pictureDao.getPicturesByPlaceId(placeId);
+        if(queriedPlacePictures.isPresent()) {
+            Picture[] pictures = new Picture[queriedPlacePictures.get().length];
+            for(int i = 0; i < pictures.length; i++){
+                pictures[i] = cleanPictureFields(queriedPlacePictures.get()[i], keepId);
+            }
+            queriedPlacePictures = Optional.of(pictures);
+        } else {
+            result.setErrorCode(500);
+            result.setMessage(new Message("Error del servidor"));
+        }
+
+        result.setData(queriedPlacePictures);
         return result;
     }
 
