@@ -43,7 +43,7 @@ public class UserValidation {
                 }
             }
 
-            if(user.getPasswordHash() == null || user.getPasswordHash().trim().length() < 8) {
+            if(user.getPassword() == null || user.getPassword().trim().length() < 8) {
                 result.setErrorCode(400);
                 message += "La contraseña no es válida. ";
             }
@@ -79,7 +79,7 @@ public class UserValidation {
                 message += "El apellido no debe estar vacío ";
             }
 
-            if(user.getPasswordHash() != null && user.getPasswordHash().trim().length() < 8 ) {
+            if(user.getPassword() != null && user.getPassword().trim().length() < 8 ) {
                 result.setErrorCode(400);
                 message += "La contraseña no es válida. ";
             }

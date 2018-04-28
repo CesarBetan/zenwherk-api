@@ -92,7 +92,7 @@ public class PasswordRecoveryService {
         }
 
         User user = new User();
-        user.setPasswordHash(passwordRecoveryToken.getPassword());
+        user.setPassword(passwordRecoveryToken.getPassword());
         Result<User> updatedUser = userService.update(userResult.getData().get().getUuid(), user);
         if(!updatedUser.getData().isPresent()) {
             result.setErrorCode(updatedUser.getErrorCode());

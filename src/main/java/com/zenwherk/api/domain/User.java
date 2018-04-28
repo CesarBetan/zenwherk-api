@@ -16,7 +16,7 @@ public class User extends Entity {
     private String name;
     private String lastName;
     private String email;
-    private String passwordHash;
+    private String password;
     private String picture;
     private Integer role;
     private Integer status;
@@ -74,12 +74,12 @@ public class User extends Entity {
         this.email = email;
     }
 
-    public String getPasswordHash() {
-        return passwordHash;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getPicture() {
@@ -138,7 +138,7 @@ public class User extends Entity {
                 ", name='" + name + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
-                ", passwordHash='" + passwordHash + '\'' +
+                ", password='" + password + '\'' +
                 ", picture='" + picture + '\'' +
                 ", role=" + role +
                 ", status=" + status +

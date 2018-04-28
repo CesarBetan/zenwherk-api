@@ -76,7 +76,7 @@ public class UserDao {
                 user.setName((String) row.get("name"));
                 user.setLastName((String) row.get("last_name"));
                 user.setEmail((String) row.get("email"));
-                user.setPasswordHash((String) row.get("password_hash"));
+                user.setPassword((String) row.get("password"));
                 user.setPicture((String) row.get("picture"));
                 user.setRole((Integer) row.get("role"));
                 user.setStatus((Integer) row.get("status"));
@@ -109,7 +109,7 @@ public class UserDao {
                 user.setName((String) row.get("name"));
                 user.setLastName((String) row.get("last_name"));
                 user.setEmail((String) row.get("email"));
-                user.setPasswordHash((String) row.get("password_hash"));
+                user.setPassword((String) row.get("password"));
                 user.setPicture((String) row.get("picture"));
                 user.setRole((Integer) row.get("role"));
                 user.setStatus((Integer) row.get("status"));
@@ -131,12 +131,12 @@ public class UserDao {
 
     public Optional<User> insert(User user) {
         String newUuid = UUID.randomUUID().toString();
-        String sql = "INSERT INTO user (uuid, name, last_name, email, password_hash, " +
+        String sql = "INSERT INTO user (uuid, name, last_name, email, password, " +
                 "picture, role, status, created_at, updated_at) " +
                 "VALUE (?,?,?,?,?,?,?,?,?,?)";
         try {
             jdbcTemplate.update(sql, newUuid, user.getName(), user.getLastName(),
-                    user.getEmail(), user.getPasswordHash(), user.getPicture(),
+                    user.getEmail(), user.getPassword(), user.getPicture(),
                     user.getRole(), user.getStatus(), Timestamp.from(Instant.now()),
                     Timestamp.from(Instant.now()));
             logger.debug(String.format("Creating user: %s %s", user.getName(), user.getLastName()) );
@@ -150,10 +150,10 @@ public class UserDao {
 
     public Optional<User> update(User user) {
         String sql = "UPDATE user SET " +
-                "name=?, last_name=?, picture=?, password_hash=?, updated_at=? WHERE uuid=?";
+                "name=?, last_name=?, picture=?, password=?, updated_at=? WHERE uuid=?";
         try {
             jdbcTemplate.update(sql, user.getName(), user.getLastName(), user.getPicture(),
-                    user.getPasswordHash(), Timestamp.from(Instant.now()), user.getUuid());
+                    user.getPassword(), Timestamp.from(Instant.now()), user.getUuid());
             logger.debug(String.format("Updating user: %s", user.getUuid()));
             return getByUuid(user.getUuid());
         } catch (Exception e) {

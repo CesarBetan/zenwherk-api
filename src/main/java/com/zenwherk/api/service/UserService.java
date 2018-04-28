@@ -95,7 +95,7 @@ public class UserService {
             return result;
         }
 
-        user.setPasswordHash(DigestUtils.sha512Hex(user.getPasswordHash()));
+        user.setPassword(DigestUtils.sha512Hex(user.getPassword()));
 
         user.setName(user.getName().trim());
         user.setLastName(user.getLastName().trim());
@@ -139,9 +139,9 @@ public class UserService {
         newUser.setLastName((user.getLastName() != null) ? user.getLastName() : newUser.getLastName());
         newUser.setPicture((user.getPicture() != null) ? user.getPicture() : newUser.getPicture());
 
-        if(user.getPasswordHash() != null) {
-            user.setPasswordHash(DigestUtils.sha512Hex(user.getPasswordHash()));
-            newUser.setPasswordHash(user.getPasswordHash());
+        if(user.getPassword() != null) {
+            user.setPassword(DigestUtils.sha512Hex(user.getPassword()));
+            newUser.setPassword(user.getPassword());
         }
 
         Optional<User> updatedUser = userDao.update(newUser);
@@ -159,7 +159,7 @@ public class UserService {
         if(!keepRole) {
             user.setRole(null);
         }
-        user.setPasswordHash(null);
+        user.setPassword(null);
         user.setStatus(null);
         return user;
     }
