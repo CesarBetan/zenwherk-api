@@ -45,9 +45,9 @@ public class UserEndpointPublic {
     }
 
     @POST
-    @Path("/user/{uuid}/recovery")
-    public Response generatePasswordRecoveryToken(@PathParam("uuid") String uuid) {
-        MessageResult result = passwordRecoveryService.generatePasswordRecoveryToken(uuid);
+    @Path("/user/recovery/token")
+    public Response generatePasswordRecoveryToken(User user) {
+        MessageResult result = passwordRecoveryService.generatePasswordRecoveryToken(user);
         Response response;
         if(result.getErrorCode() != null && result.getErrorCode() > 0) {
             switch (result.getErrorCode()) {
