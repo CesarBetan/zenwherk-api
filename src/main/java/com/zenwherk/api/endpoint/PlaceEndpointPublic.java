@@ -41,10 +41,13 @@ public class PlaceEndpointPublic {
                            @QueryParam("categories") List<String> categories,
                            @QueryParam("features") List<String> features,
                            @QueryParam("latitude") String latitude,
-                           @QueryParam("longitude") String longitude) {
+                           @QueryParam("longitude") String longitude,
+                           @QueryParam("q") String q){
         ListResult<Place> placeListResult;
         if(latitude != null && longitude != null) {
             placeListResult = placeService.searchNearPlaces(latitude, longitude);
+        } else if(q != null && q.equals("featured")) {
+            placeListResult = placeService.searchFeaturedPlaces();
         } else {
             placeListResult = placeService.searchPlaces(name, categories, features, false, false);
         }

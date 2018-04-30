@@ -406,6 +406,55 @@ public class PlaceService {
         return result;
     }
 
+    public ListResult<Place> searchFeaturedPlaces() {
+        ListResult<Place> result = new ListResult<>();
+
+        Optional<Place[]> queriedPlaces = placeDao.searchFeaturedPlaces();
+        if(queriedPlaces.isPresent()) {
+            LinkedList<Place> filteredPlaces = new LinkedList<>();
+            for(int i = 0; i < queriedPlaces.get().length; i++) {
+                Place place = queriedPlaces.get()[i];
+                Long placeId = place.getId();
+                place = cleanPlaceFields(place, false, false);
+
+                // Get the features of this place
+                place.setFeatures(new PlaceFeature[0]);
+                ListResult<PlaceFeature> placeFeatures = placeFeatureService.getApprovedFeaturesByPlaceId(placeId, false);
+                if(placeFeatures.getData().isPresent()) {
+                    place.setFeatures(placeFeatures.getData().get());
+                }
+
+                // Get the schedules of this place
+                place.setSchedules(new PlaceSchedule[0]);
+                ListResult<PlaceSchedule> placeSchedules = placeScheduleService.getApprovedSchedulesByPlaceId(placeId, false);
+                if(placeSchedules.getData().isPresent()) {
+                    place.setSchedules(placeSchedules.getData().get());
+                }
+
+                // Get the rating of this place
+                Double rating = ratingDao.getRatingByPlaceId(placeId);
+                place.setRating(rating);
+
+                // Get the pictures of this place
+                place.setPictures(new Picture[0]);
+                ListResult<Picture> placePictures = pictureService.getPicturesByPlaceId(placeId, false);
+                if(placePictures.getData().isPresent()) {
+                    place.setPictures(placePictures.getData().get());
+                }
+
+                filteredPlaces.add(place);
+            }
+
+            queriedPlaces = Optional.of(filteredPlaces.toArray(new Place[filteredPlaces.size()]));
+        } else {
+            result.setErrorCode(500);
+            result.setMessage(new Message("Error del servidor"));
+        }
+
+        result.setData(queriedPlaces);
+        return result;
+    }
+
     private Place cleanPlaceFields(Place place, boolean keepId, boolean keepStatus) {
         if(!keepId) {
             place.setId(null);

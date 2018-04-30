@@ -26,7 +26,7 @@ public class PlaceDao {
         try {
             BeanPropertyRowMapper<Place> rowMapper = new BeanPropertyRowMapper<>(Place.class);
             Place place = jdbcTemplate.queryForObject(sql, rowMapper, id);
-            logger.debug("Getting place by id " + id);
+            logger.info("Getting place by id " + id);
             return Optional.of(place);
         } catch (Exception e) {
             e.printStackTrace();
@@ -184,6 +184,35 @@ public class PlaceDao {
             List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
             Place[] places = toPlaceArray(rows, false);
             logger.debug("Getting all places to be added");
+            return Optional.of(places);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+        return Optional.empty();
+    }
+
+    public Optional<Place[]> searchFeaturedPlaces() {
+        String sql =
+            "SELECT " +
+            "approved_places.id, approved_places.uuid, approved_places.name, " +
+                    "approved_places.address, approved_places.description, " +
+                    "approved_places.phone, approved_places.category, " +
+                    "approved_places.website, approved_places.latitude, " +
+                    "approved_places.longitude, approved_places.status, " +
+                    "approved_places.created_at, approved_places.updated_at, " +
+                    "approved_places.uploaded_by, COALESCE(ratings.rating, 0.0) AS rating " +
+            "FROM " +
+                    "(SELECT * FROM place WHERE status IN (1,3)) AS approved_places " +
+            "LEFT JOIN " +
+            "(SELECT place_id, AVG(review_rating) AS rating FROM review WHERE status=1 GROUP BY place_id) AS ratings " +
+            "ON approved_places.id=ratings.place_id " +
+            "ORDER BY COALESCE(ratings.rating, 0.0) DESC LIMIT 2 ";
+
+        try {
+            List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
+            Place[] places = toPlaceArray(rows, false);
+            logger.info("Getting featured places");
             return Optional.of(places);
         } catch (Exception e) {
             e.printStackTrace();
