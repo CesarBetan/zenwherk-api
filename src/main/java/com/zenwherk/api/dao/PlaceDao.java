@@ -157,14 +157,14 @@ public class PlaceDao {
     }
 
     public Optional<Place[]> searchNearPlaces(Double latitude, Double longitude) {
-        String sql = "SELECT id, uuid, name, address, description, phone, category, " +
+        String sql = "SELECT * FROM (SELECT id, uuid, name, address, description, phone, category, " +
                 "website, latitude, longitude, status, created_at, updated_at, uploaded_by, " +
                 "111.045 * DEGREES(ACOS(COS(RADIANS(?)) * COS(RADIANS(latitude)) " +
                 "* COS(RADIANS(longitude) - RADIANS(?)) + SIN(RADIANS(?)) * SIN(RADIANS(latitude)))) " +
                 "AS distance_in_km " +
                 "FROM place WHERE status IN(1,3) " +
                 "ORDER BY distance_in_km ASC " +
-                "LIMIT 0,20";
+                "LIMIT 0,20) AS r WHERE distance_in_km < 5.0";
         try {
             // latitude, longitude, latitude
             List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, latitude, longitude, latitude);
