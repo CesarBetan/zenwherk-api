@@ -164,7 +164,7 @@ public class PlaceDao {
                 "AS distance_in_km " +
                 "FROM place WHERE status IN(1,3) " +
                 "ORDER BY distance_in_km ASC " +
-                "LIMIT 0,20) AS r WHERE distance_in_km < 7.0";
+                "LIMIT 0,20) AS r WHERE distance_in_km < 10.0";
         try {
             // latitude, longitude, latitude
             List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, latitude, longitude, latitude);
