@@ -67,7 +67,7 @@ public class PasswordRecoveryService {
         }
 
         try {
-            mailingService.sendSimpleMessage(user.getEmail(), "Recuperación de contraseña", String.format("Para cambiar su contraseña favor de ingresar a http://localhost:3000/recovery_token?token=%s", insertedPasswordRecoveryToken.get().getToken()) );
+            mailingService.sendSimpleMessage(user.getEmail(), "Recuperación de contraseña", String.format("Para cambiar su contraseña favor de ingresar a https://zenwherk-user.firebaseapp.com/recovery_token?token=%s", insertedPasswordRecoveryToken.get().getToken()) );
         } catch (Exception e) {
             e.printStackTrace();
             logger.error(e.getMessage());
